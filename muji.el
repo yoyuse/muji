@@ -50,9 +50,14 @@
   :type 'boolean
   :group 'muji)
 
-(defcustom muji-use-semicolon-as-delimiter t
-  "If non-nil, use semicolon as delimiter."
-  :type 'boolean
+(defcustom muji-delimiter ";"
+  "Delimiter between ASCII and roman strings."
+  :type '(choice string (const nil))
+  :group 'muji)
+
+(defcustom muji-stop-chars "(){}<>"
+  "String of characters that should not be icluded in roman string."
+  :type '(choice string (const nil))
   :group 'muji)
 
 ;; cf. quail-japanese-use-double-n
@@ -241,19 +246,23 @@
 If no roman string found, return nil."
   (save-match-data
     (let* ((case-fold-search nil)
-           (pattern (if muji-use-semicolon-as-delimiter
-                        ;; XXX: hard coding: semicolon
-                        "\\(.*?\\)\\(;?\\([!-:<-~]+\\)\\)$"
-                      ;; XXX: hard coding
-                      "\\(.*?\\)\\([!-~]+\\)$"))
-           )
+           (delimiter (or muji-delimiter ""))
+           (stop-chars (or muji-stop-chars ""))
+           (pattern
+            (concat
+             "\\(" (regexp-quote delimiter) "\\)?" "\\("
+             (regexp-opt-charset
+              (cl-remove-if
+               (lambda (c)
+                 (memq c (string-to-list (concat delimiter stop-chars))))
+               (number-sequence ?! ?~)))
+             "+\\)$")))
       (if (not (string-match pattern string))
           nil
-        (let* ((roman (match-string 2 string))
-               (roman-sans-delimiter (if muji-use-semicolon-as-delimiter
-                                         (match-string 3 string)
-                                       roman))
-               (kana (muji-roman-to-kana roman-sans-delimiter)))
+        (let* ((delimiter (match-string 1 string))
+               (roman (match-string 2 string))
+               (kana (muji-roman-to-kana roman))
+               (roman (if delimiter (concat delimiter roman) roman)))
           (cons roman kana))))))
 
 (defun muji-no-kkc (kana)

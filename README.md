@@ -41,13 +41,18 @@ Alphabet の直後に日本語を入力するときは、間を半角空白で�
 セミコロンは変換後に削除されます。
 例: `Emacs;kakuchou` → `Emacs拡張`
 
-セミコロンを特別扱いしたくない人は init.el に `(setq muji-use-semicolon-as-delimiter nil)` と書いてください。
+区切り文字を変更するには init.el に `(setq muji-delimiter ":")` のように書いてください。
 
-アクティブなリージョンがあれば、そのリージョンを変換します。
+これと似た設定項目に `muji-stop-chars` (デフォルト値は `"(){}<>"`) があります。
+`C-j` はカーソルの左のローマ字を変換しますが、この変数で指定された文字より左は変換対象としません。
+例: `(paren)kakko` → `(paren)括弧`
+
+なお `muji-remove-space`, `muji-delimiter`, `muji-stop-chars` の値にかかわらず、アクティブなリージョンがあれば、そのリージョンを変換します。
+例: `C-SPC` `z(z)` `C-x C-x` `C-j` → `【】`
 
 ## ローマ字かな変換ルール
 
-ローマ字かな変換ルールは Emacs の leim/quail/japanese.el 由来のものです
+ローマ字かな変換ルールは Emacs の leim/quail/japanese.el 由来のものです。
 ただし、全角の数字・記号は半角にしています (個人的な好み)。
 
 「ん」は `n` または `n'` (`a i u e o y` が続く場合) で入力します。
@@ -98,7 +103,7 @@ kkc.el の変換中は、次のようなキー操作が可能です。
 ## Tips
 
 isearch (`C-s`) 中に `C-j` は使えません。
-[migemo.el](https://github.com/emacs-jp/migemo) を併用するとよいでしょう。
+ローマ字のまま日本語を検索できる [migemo.el](https://github.com/emacs-jp/migemo) を併用するとよいでしょう。
 nonincremental search (`C-s RET`) では `C-j` が使えます。
 
 kkc.el の辞書 leim/ja-dic/ja-dic.el は語彙が多くありません。
