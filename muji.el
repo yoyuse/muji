@@ -60,6 +60,11 @@
   :type '(choice string (const nil))
   :group 'muji)
 
+(defcustom muji-a-la-mlh-separator "/"
+  "Phrase separator used in `muji-a-la-mlh'."
+  :type '(choice string (const nil))
+  :group 'muji)
+
 ;; cf. quail-japanese-use-double-n
 (defcustom muji-use-double-n nil
   "If non-nil, use type \"nn\" to insert ん."
@@ -270,14 +275,13 @@ If no roman string found, return nil."
 Or if kana ends with \"k\", convert kana to katakana and return (t . katakana).
 Or return (nil . kana)."
   (save-match-data
-    (cond ((null kana)
-           nil)
-          ((string-match "\\(.+\\)h$" kana)
-           (cons t (match-string 1 kana)))
-          ((string-match "\\(.+\\)k$" kana)
-           (cons t (japanese-katakana (match-string 1 kana))))
-          (t
-           (cons nil kana)))))
+    (cond ((null kana) nil)
+          ((string-match "\\(.+\\)h$" kana) (cons t (match-string 1 kana)))
+          ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
+                                                     (match-string 1 kana))))
+          ;; XXX: for muji-a-la-mlh
+          ((string-empty-p kana) (cons t muji-a-la-mlh-separator))
+          (t (cons nil kana)))))
 
 (defun muji-kkc-region (beg end)
   "Convert the region between BEG and END with kkc."
@@ -339,6 +343,40 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
             (when (string-match-p "\\w " str)
               (backward-delete-char 1))))))))
 
+(defun muji-a-la-mlh (&optional inverse-remove-space)
+  "Convert a la mlh."
+  (interactive "P")
+  (let* ((muji-remove-space
+          (if inverse-remove-space (not muji-remove-space) muji-remove-space))
+         (line (buffer-substring-no-properties (point-at-bol) (point)))
+         (roman-kana (muji-backward-roman-to-kana line)))
+    (when roman-kana
+      (let* ((roman (car roman-kana))
+             (kana (cdr roman-kana))
+             (parts (mapcar #'muji-no-kkc
+                            (split-string kana muji-a-la-mlh-separator)))
+             (beg (progn (goto-char (- (point) (length roman)))
+                         (point))))
+        (save-excursion
+          (dolist (part parts) (insert (cdr part)))
+          (delete-region (point) (+ (point) (length roman))))
+        (dolist (part parts)
+          (let* ((no-kkc (car part))
+                 (phrase (cdr part)))
+            (cond (no-kkc (forward-char (length phrase)))
+                  (t (kkc-region (point)
+                                 (+ (point) (length phrase)))))))
+        ;;
+        (when muji-remove-space
+          (undo-boundary)
+          (save-excursion
+            (goto-char beg)
+            (let* ((str (buffer-substring-no-properties
+                         (max (point-at-bol) (- (point) 2))
+                         (point))))
+              (when (string-match-p "\\w " str)
+                (backward-delete-char 1)))))))))
+
 ;;;###autoload
 (defun muji-kkc (&optional arg)
   "Convert with kkc.
@@ -347,12 +385,11 @@ Or if ARG is a number, convert last ARG characters string with `muji-kkc-n'.
 Or convert the current word with `muji-kkc-normal',
 in which case if ARG is non-nil, inverse `muji-remove-space'."
   (interactive "P")
-  (cond ((use-region-p)
-         (muji-kkc-region (region-beginning) (region-end)))
-        ((numberp arg)
-         (muji-kkc-n arg))
-        (t
-         (muji-kkc-normal arg))))
+  (cond ((use-region-p) (muji-kkc-region (region-beginning) (region-end)))
+        ((numberp arg) (muji-kkc-n arg))
+        (t (if muji-a-la-mlh-separator
+               (muji-a-la-mlh arg)
+             (muji-kkc-normal arg)))))
 
 ;;;###autoload
 (define-minor-mode
