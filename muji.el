@@ -60,10 +60,15 @@
   :type '(choice string (const nil))
   :group 'muji)
 
-(defcustom muji-a-la-mlh-separator "/"
-  "Phrase separator used in `muji-a-la-mlh'."
-  :type '(choice string (const nil))
+(defcustom muji-a-la-mlh t
+  "If non-nil, do conversion a la mlh."
+  :type 'boolean
   :group 'muji)
+
+;; (defcustom muji-a-la-mlh-separator "/"
+;;   "Phrase separator used in `muji-a-la-mlh'."
+;;   :type '(choice string (const nil))
+;;   :group 'muji)
 
 ;; cf. quail-japanese-use-double-n
 (defcustom muji-use-double-n nil
@@ -279,8 +284,6 @@ Or return (nil . kana)."
           ((string-match "\\(.+\\)h$" kana) (cons t (match-string 1 kana)))
           ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
                                                      (match-string 1 kana))))
-          ;; XXX: for muji-a-la-mlh
-          ((string-empty-p kana) (cons t muji-a-la-mlh-separator))
           (t (cons nil kana)))))
 
 (defun muji-kkc-region (beg end)
@@ -353,8 +356,10 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
     (when roman-kana
       (let* ((roman (car roman-kana))
              (kana (cdr roman-kana))
-             (parts (mapcar #'muji-no-kkc
-                            (split-string kana muji-a-la-mlh-separator)))
+             ;; XXX: hard coding: slash
+             (kana (replace-regexp-in-string "\\([hk/]?\\)/" "\\1 " kana))
+             (kana (string-replace "/ " "/" kana))
+             (parts (mapcar #'muji-no-kkc (split-string kana " " t)))
              (beg (progn (goto-char (- (point) (length roman)))
                          (point))))
         (save-excursion
@@ -387,9 +392,7 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
   (interactive "P")
   (cond ((use-region-p) (muji-kkc-region (region-beginning) (region-end)))
         ((numberp arg) (muji-kkc-n arg))
-        (t (if muji-a-la-mlh-separator
-               (muji-a-la-mlh arg)
-             (muji-kkc-normal arg)))))
+        (t (if muji-a-la-mlh (muji-a-la-mlh arg) (muji-kkc-normal arg)))))
 
 ;;;###autoload
 (define-minor-mode
