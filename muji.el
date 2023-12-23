@@ -55,7 +55,17 @@
   :type '(choice string (const nil))
   :group 'muji)
 
+(defcustom muji-delimiter-kana101 ":"
+  "Delimiter between ASCII and roman strings."
+  :type '(choice string (const nil))
+  :group 'muji)
+
 (defcustom muji-stop-chars "(){}<>"
+  "String of characters that should not be icluded in roman string."
+  :type '(choice string (const nil))
+  :group 'muji)
+
+(defcustom muji-stop-chars-kana101 nil
   "String of characters that should not be icluded in roman string."
   :type '(choice string (const nil))
   :group 'muji)
@@ -75,6 +85,16 @@
   "If non-nil, use type \"nn\" to insert ん."
   :type 'boolean
   :group 'muji)
+
+(defvar muji-kana101 t "If non-nil, use JIS kana input on 101 keyboard.")
+
+(defun muji-delimiter ()
+  "Return delimiter between ASCII and roman strings."
+  (if muji-kana101 muji-delimiter-kana101 muji-delimiter))
+
+(defun muji-stop-chars ()
+  "Return string of characters that should not be icluded in roman string."
+  (if muji-kana101 muji-stop-chars-kana101 muji-stop-chars))
 
 ;; cf. quail-japanese-transliteration-rules
 (defvar muji-transliteration-rules
@@ -203,20 +223,51 @@
     ;; ("qz" quail-japanese-switch-package)
     ))
 
-;;
-(defvar muji-roman-pattern nil
-  "Regexp that matches all roman patterns.")
+(defvar muji-transliteration-rules-kana101
+  '(( "3" "あ") ( "e" "い") ( "4" "う") ( "5" "え") ( "6" "お")
+    ( "t" "か") ( "g" "き") ( "h" "く") ( "'" "け") ( "b" "こ")
+    ( "x" "さ") ( "d" "し") ( "r" "す") ( "p" "せ") ( "c" "そ")
+    ( "q" "た") ( "a" "ち") ( "z" "つ") ( "w" "て") ( "s" "と")
+    ( "u" "な") ( "i" "に") ( "1" "ぬ") ( "," "ね") ( "k" "の")
+    ( "f" "は") ( "v" "ひ") ( "2" "ふ") ( "=" "へ") ( "-" "ほ")
+    ( "j" "ま") ( "n" "み") ("\\" "む") ( "/" "め") ( "m" "も")
+    ( "7" "や")             ( "8" "ゆ")             ( "9" "よ")
+    ( "o" "ら") ( "l" "り") ( "." "る") ( ";" "れ") ( "`" "ろ")
+    ( "0" "わ")                                     ( ")" "を")
+    ( "y" "ん")
+    ("t[" "が") ("g[" "ぎ") ("h[" "ぐ") ("'[" "げ") ("b[" "ご")
+    ("x[" "ざ") ("d[" "じ") ("r[" "ず") ("p[" "ぜ") ("c[" "ぞ")
+    ("q[" "だ") ("a[" "ぢ") ("z[" "づ") ("w[" "で") ("s[" "ど")
+    ("f[" "ば") ("v[" "び") ("2[" "ぶ") ("=[" "べ") ("-[" "ぼ")
+    ("f]" "ぱ") ("v]" "ぴ") ("2]" "ぷ") ("=]" "ぺ") ("-]" "ぽ")
+    ( "#" "ぁ") ( "E" "ぃ") ( "$" "ぅ") ( "%" "ぇ") ( "^" "ぉ")
+    ( "Z" "っ") ( "&" "ゃ") ( "*" "ゅ") ( "(" "ょ")
+    ( "_" "ー") ( "{" "「") ( "}" "」") ( "<" "、") ( ">" "。")
+    ( "?" "・") ( "[" "゛") ( "]" "゜")
+    ))
+
+(defun muji-transliteration-rules ()
+  (if muji-kana101
+      muji-transliteration-rules-kana101
+    muji-transliteration-rules))
 
 (defun muji-make-roman-pattern (rules)
   "Make `muji-roman-pattern' from RULES."
   ;; Sort in long order so that a longer Romaji sequence precedes
   (let* ((rules (sort (mapcar (function (lambda (elt) (car elt))) rules)
                       (function (lambda (a b) (< (length b) (length a)))))))
-    (setq muji-roman-pattern
-          (mapconcat (function (lambda (elt) (regexp-quote elt)))
-                     rules "\\|"))))
+    (mapconcat (function (lambda (elt) (regexp-quote elt))) rules "\\|")))
 
-(muji-make-roman-pattern muji-transliteration-rules)
+(defvar muji-roman-pattern (muji-make-roman-pattern muji-transliteration-rules)
+  "Regexp that matches all roman patterns.")
+
+(defvar muji-roman-pattern-kana101
+  (muji-make-roman-pattern muji-transliteration-rules-kana101)
+  "Regexp that matches all roman patterns.")
+
+(defun muji-roman-pattern ()
+  "Return regexp that matches all roman patterns."
+  (if muji-kana101 muji-roman-pattern-kana101 muji-roman-pattern))
 
 (defun muji-normalize-n (string)
   "Normalize spellings for \"ん\" to \"n'\"."
@@ -240,12 +291,14 @@
   "Convert roman string in STRING to kana and return it."
   (save-match-data
     (let* ((case-fold-search nil)
-           (string (muji-normalize-n string))
-           (string (muji-double-consonant-to-sokuon string))
-           (pattern (concat "\\(" muji-roman-pattern "\\).*\\'")))
+           (string (if muji-kana101
+                       string
+                     (muji-double-consonant-to-sokuon
+                      (muji-normalize-n string))))
+           (pattern (concat "\\(" (muji-roman-pattern) "\\).*\\'")))
       (while (string-match pattern string)
         (let* ((match (match-string 1 string))
-               (kana (cadr (assoc match muji-transliteration-rules)))
+               (kana (cadr (assoc match (muji-transliteration-rules))))
                (kana (if (vectorp kana) (aref kana 0) kana)))
           (setq string
                 (replace-regexp-in-string pattern kana string nil nil 1))))
@@ -256,8 +309,8 @@
 If no roman string found, return nil."
   (save-match-data
     (let* ((case-fold-search nil)
-           (delimiter (or muji-delimiter ""))
-           (stop-chars (or muji-stop-chars ""))
+           (delimiter (or (muji-delimiter) ""))
+           (stop-chars (or (muji-stop-chars) ""))
            (pattern
             (concat
              "\\(" (regexp-quote delimiter) "\\)?" "\\("
@@ -278,13 +331,16 @@ If no roman string found, return nil."
 (defun muji-no-kkc (kana)
   "If kana ends with \"h\", return (t . hiragana).
 Or if kana ends with \"k\", convert kana to katakana and return (t . katakana).
+Or if kana ends with \"j\", return (nil . kana).
 Or return (nil . kana)."
   (save-match-data
-    (cond ((null kana) nil)
-          ((string-match "\\(.+\\)h$" kana) (cons t (match-string 1 kana)))
-          ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
-                                                     (match-string 1 kana))))
-          (t (cons nil kana)))))
+    (let* ((case-fold-search t))
+      (cond ((null kana) nil)
+            ((string-match "\\(.+\\)h$" kana) (cons t (match-string 1 kana)))
+            ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
+                                                       (match-string 1 kana))))
+            ((string-match "\\(.+\\)j$" kana) (cons nil (match-string 1 kana)))
+            (t (cons nil kana))))))
 
 (defun muji-kkc-region (beg end)
   "Convert the region between BEG and END with kkc."
@@ -354,11 +410,15 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
          (line (buffer-substring-no-properties (point-at-bol) (point)))
          (roman-kana (muji-backward-roman-to-kana line)))
     (when roman-kana
-      (let* ((roman (car roman-kana))
+      (let* ((case-fold-search t)
+             (roman (car roman-kana))
              (kana (cdr roman-kana))
-             ;; XXX: hard coding: slash
-             (kana (replace-regexp-in-string "\\([hk/]?\\)/" "\\1 " kana))
-             (kana (string-replace "/ " "/" kana))
+             (kana (if muji-kana101
+                       (replace-regexp-in-string "\\([jhk]\\)" "\\1 " kana)
+                     ;; XXX: hard coding: slash
+                     (string-replace
+                      "/ " "/"
+                      (replace-regexp-in-string "\\([hk/]?\\)/" "\\1 " kana))))
              (parts (mapcar #'muji-no-kkc (split-string kana " " t)))
              (beg (progn (goto-char (- (point) (length roman)))
                          (point))))
@@ -414,6 +474,15 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
 (defun muji-on ()
   (muji-mode 1))
 
+;;;###autoload
+(defun muji-toggle-kana101 ()
+  "Toggle `muji-kana101'."
+  (interactive)
+  (setq muji-kana101 (not muji-kana101))
+  (message (if muji-kana101
+               "Using kana101 rules."
+             "Using roman rules.")))
+
 ;;; cursor color
 
 (defcustom muji-inactive-cursor-color
@@ -425,10 +494,19 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
   "Cursor color when muji mode is active."
   :type 'color :group 'muji)
 
+(defcustom muji-active-cursor-color-kana101 "coral"
+  "Cursor color when muji mode is active."
+  :type 'color :group 'muji)
+
 (defun muji-set-cursor-color ()
   "Set cursor color according to `muji-mode'."
-  (set-cursor-color (if muji-mode muji-active-cursor-color
-                      muji-inactive-cursor-color)))
+  (when (and muji-active-cursor-color muji-active-cursor-color-kana101)
+    (set-cursor-color
+     (if muji-mode
+         (if muji-kana101
+             muji-active-cursor-color-kana101
+           muji-active-cursor-color)
+       muji-inactive-cursor-color))))
 
 (add-hook 'post-command-hook 'muji-set-cursor-color)
 
