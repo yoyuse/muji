@@ -86,7 +86,10 @@
   :type 'boolean
   :group 'muji)
 
-(defvar muji-kana101 t "If non-nil, use JIS kana input on 101 keyboard.")
+(defcustom muji-kana101 nil
+  "If non-nil, use JIS kana input on 101 keyboard."
+  :type 'boolean
+  :group 'muji)
 
 (defun muji-delimiter ()
   "Return delimiter between ASCII and roman strings."
