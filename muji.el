@@ -50,7 +50,7 @@
   :type 'boolean
   :group 'muji)
 
-(defcustom muji-delimiter ";"
+(defcustom muji-delimiter ":"
   "Delimiter between ASCII and roman strings."
   :type '(choice string (const nil))
   :group 'muji)
@@ -70,15 +70,15 @@
   :type '(choice string (const nil))
   :group 'muji)
 
-(defcustom muji-a-la-mlh t
-  "If non-nil, do conversion a la mlh."
-  :type 'boolean
-  :group 'muji)
-
-;; (defcustom muji-a-la-mlh-separator "/"
-;;   "Phrase separator used in `muji-a-la-mlh'."
-;;   :type '(choice string (const nil))
+;; (defcustom muji-a-la-mlh t
+;;   "If non-nil, do conversion a la mlh."
+;;   :type 'boolean
 ;;   :group 'muji)
+
+(defcustom muji-a-la-mlh-separator ";"
+  "Phrase separator used in `muji-a-la-mlh'."
+  :type '(choice string (const nil))
+  :group 'muji)
 
 ;; cf. quail-japanese-use-double-n
 (defcustom muji-use-double-n nil
@@ -417,17 +417,19 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
              (roman (car roman-kana))
              (kana (cdr roman-kana))
              ;;
-             ;; (kana (if muji-kana101
-             ;;           (replace-regexp-in-string "\\([jhk]\\)" "\\1 " kana)
-             ;;         ;; XXX: hard coding: slash
-             ;;         (string-replace
-             ;;          "/ " "/"
-             ;;          (replace-regexp-in-string "\\([hk/]?\\)/" "\\1 " kana))))
+             ;; ;; XXX: hard coding: slash
+             ;; (kana (replace-regexp-in-string "\\([fhjk/]?\\)/" "\\1 " kana))
+             ;; (kana (string-replace "/ " "/" kana))
+             ;; (kana (replace-regexp-in-string "\\([fhjk]\\) ?" "\\1 " kana))
              ;;
-             ;; XXX: hard coding: slash
-             (kana (replace-regexp-in-string "\\([fhjk/]?\\)/" "\\1 " kana))
-             (kana (string-replace "/ " "/" kana))
-             (kana (replace-regexp-in-string "\\([fhjk]\\) ?" "\\1 " kana))
+             (sep muji-a-la-mlh-separator)
+             (re1 (regexp-opt-charset (string-to-list (concat "fhjk" sep))))
+             (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
+             (kana (replace-regexp-in-string re1 "\\1 " kana))
+             (kana (string-replace (concat sep " ") sep kana))
+             (re2 (regexp-opt-charset (string-to-list "fhjk")))
+             (re2 (concat "\\(" re2 "\\) ?"))
+             (kana (replace-regexp-in-string re2 "\\1 " kana))
              ;;
              (parts (mapcar #'muji-no-kkc (split-string kana " " t)))
              (beg (progn (goto-char (- (point) (length roman)))
@@ -462,7 +464,9 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
   (interactive "P")
   (cond ((use-region-p) (muji-kkc-region (region-beginning) (region-end)))
         ((numberp arg) (muji-kkc-n arg))
-        (t (if muji-a-la-mlh (muji-a-la-mlh arg) (muji-kkc-normal arg)))))
+        (t (if muji-a-la-mlh-separator
+               (muji-a-la-mlh arg)
+             (muji-kkc-normal arg)))))
 
 ;;;###autoload
 (define-minor-mode
