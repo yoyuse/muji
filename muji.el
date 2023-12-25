@@ -70,13 +70,8 @@
   :type '(choice string (const nil))
   :group 'muji)
 
-;; (defcustom muji-a-la-mlh t
-;;   "If non-nil, do conversion a la mlh."
-;;   :type 'boolean
-;;   :group 'muji)
-
-(defcustom muji-a-la-mlh-separator ";"
-  "Phrase separator used in `muji-a-la-mlh'."
+(defcustom muji-phrase-separator ";"
+  "Phrase separator used in `muji-kkc-phrases'."
   :type '(choice string (const nil))
   :group 'muji)
 
@@ -370,44 +365,26 @@ Or return (nil . kana)."
          (end (point)))
     (muji-kkc-region beg end)))
 
-(defun muji-kkc-normal (&optional inverse-remove-space)
-  "Convert the current word with kkc.
-If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
-  (let* ((muji-remove-space
-          (if inverse-remove-space (not muji-remove-space) muji-remove-space))
-         (line (buffer-substring-no-properties (point-at-bol) (point)))
-         (roman-kana (muji-backward-roman-to-kana line))
-         (roman (car roman-kana))
-         (kana (cdr roman-kana))
-         ;;
-         (no-kkc (muji-no-kkc kana))
-         (kana (cdr no-kkc))
-         (no-kkc (car no-kkc))
-         ;;
-         beg)
-    (when roman-kana
-      (save-excursion
-        (goto-char (- (point) (length roman)))
-        (setq beg (point))
-        (insert kana)
-        (delete-region (point) (+ (point) (length roman))))
-      ;;
-      ;; (kkc-region (- (point) (length kana)) (point))
-      (when (not no-kkc) (kkc-region (- (point) (length kana)) (point)))
-      ;;
-      (when muji-remove-space
-        (undo-boundary)
-        (save-excursion
-          (goto-char beg)
-          (let* ((str (buffer-substring-no-properties
-                       (max (point-at-bol) (- (point) 2))
-                       (point))))
-            (when (string-match-p "\\w " str)
-              (backward-delete-char 1))))))))
+(defun muji-split-phrases (kana)
+  "Split string KANA into phrase list by `muji-phrase-separator'.
+E.g. \"へんかん;するh\" → ((nil . \"へんかん\") (t . \"する\"))."
+  (if (null muji-phrase-separator)
+      (list (muji-no-kkc kana))
+    (let* ((sep muji-phrase-separator)
+           ;; XXX: hard coding: fhjk
+           (re1 (regexp-opt-charset (string-to-list (concat "fhjk" sep))))
+           (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
+           (kana (replace-regexp-in-string re1 "\\1 " kana))
+           (kana (string-replace (concat sep " ") sep kana))
+           ;; XXX: hard coding: fhjk
+           (re2 (regexp-opt-charset (string-to-list "fhjk")))
+           (re2 (concat "\\(" re2 "\\) ?"))
+           (kana (replace-regexp-in-string re2 "\\1 " kana)))
+      (mapcar #'muji-no-kkc (split-string kana " " t)))))
 
-(defun muji-a-la-mlh (&optional inverse-remove-space)
-  "Convert a la mlh."
-  (interactive "P")
+(defun muji-kkc-phrases (&optional inverse-remove-space)
+  "Convert the current phrases with kkc.
+If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
   (let* ((muji-remove-space
           (if inverse-remove-space (not muji-remove-space) muji-remove-space))
          (line (buffer-substring-no-properties (point-at-bol) (point)))
@@ -416,24 +393,8 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
       (let* ((case-fold-search t)
              (roman (car roman-kana))
              (kana (cdr roman-kana))
-             ;;
-             ;; ;; XXX: hard coding: slash
-             ;; (kana (replace-regexp-in-string "\\([fhjk/]?\\)/" "\\1 " kana))
-             ;; (kana (string-replace "/ " "/" kana))
-             ;; (kana (replace-regexp-in-string "\\([fhjk]\\) ?" "\\1 " kana))
-             ;;
-             (sep muji-a-la-mlh-separator)
-             (re1 (regexp-opt-charset (string-to-list (concat "fhjk" sep))))
-             (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
-             (kana (replace-regexp-in-string re1 "\\1 " kana))
-             (kana (string-replace (concat sep " ") sep kana))
-             (re2 (regexp-opt-charset (string-to-list "fhjk")))
-             (re2 (concat "\\(" re2 "\\) ?"))
-             (kana (replace-regexp-in-string re2 "\\1 " kana))
-             ;;
-             (parts (mapcar #'muji-no-kkc (split-string kana " " t)))
-             (beg (progn (goto-char (- (point) (length roman)))
-                         (point))))
+             (parts (muji-split-phrases kana))
+             (beg (progn (goto-char (- (point) (length roman))) (point))))
         (save-excursion
           (dolist (part parts) (insert (cdr part)))
           (delete-region (point) (+ (point) (length roman))))
@@ -441,9 +402,7 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
           (let* ((no-kkc (car part))
                  (phrase (cdr part)))
             (cond (no-kkc (forward-char (length phrase)))
-                  (t (kkc-region (point)
-                                 (+ (point) (length phrase)))))))
-        ;;
+                  (t (kkc-region (point) (+ (point) (length phrase)))))))
         (when muji-remove-space
           (undo-boundary)
           (save-excursion
@@ -459,14 +418,12 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
   "Convert with kkc.
 If region is active, convert the region with `muji-kkc-region'.
 Or if ARG is a number, convert last ARG characters string with `muji-kkc-n'.
-Or convert the current word with `muji-kkc-normal',
+Or convert the current phrases with `muji-kkc-phrases',
 in which case if ARG is non-nil, inverse `muji-remove-space'."
   (interactive "P")
   (cond ((use-region-p) (muji-kkc-region (region-beginning) (region-end)))
         ((numberp arg) (muji-kkc-n arg))
-        (t (if muji-a-la-mlh-separator
-               (muji-a-la-mlh arg)
-             (muji-kkc-normal arg)))))
+        (t (muji-kkc-phrases arg))))
 
 ;;;###autoload
 (define-minor-mode
