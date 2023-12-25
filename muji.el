@@ -339,7 +339,7 @@ Or return (nil . kana)."
   (save-match-data
     (let* ((case-fold-search t))
       (cond ((null kana) nil)
-            ((string-match "\\(.+\\)h$" kana) (cons t (match-string 1 kana)))
+            ((string-match "\\(.+\\)[fh]$" kana) (cons t (match-string 1 kana)))
             ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
                                                        (match-string 1 kana))))
             ((string-match "\\(.+\\)j$" kana) (cons nil (match-string 1 kana)))
@@ -416,12 +416,19 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
       (let* ((case-fold-search t)
              (roman (car roman-kana))
              (kana (cdr roman-kana))
-             (kana (if muji-kana101
-                       (replace-regexp-in-string "\\([jhk]\\)" "\\1 " kana)
-                     ;; XXX: hard coding: slash
-                     (string-replace
-                      "/ " "/"
-                      (replace-regexp-in-string "\\([hk/]?\\)/" "\\1 " kana))))
+             ;;
+             ;; (kana (if muji-kana101
+             ;;           (replace-regexp-in-string "\\([jhk]\\)" "\\1 " kana)
+             ;;         ;; XXX: hard coding: slash
+             ;;         (string-replace
+             ;;          "/ " "/"
+             ;;          (replace-regexp-in-string "\\([hk/]?\\)/" "\\1 " kana))))
+             ;;
+             ;; XXX: hard coding: slash
+             (kana (replace-regexp-in-string "\\([fhjk/]?\\)/" "\\1 " kana))
+             (kana (string-replace "/ " "/" kana))
+             (kana (replace-regexp-in-string "\\([fhjk]\\) ?" "\\1 " kana))
+             ;;
              (parts (mapcar #'muji-no-kkc (split-string kana " " t)))
              (beg (progn (goto-char (- (point) (length roman)))
                          (point))))
