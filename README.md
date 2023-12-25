@@ -106,9 +106,11 @@ isearch (`C-s`) 中に `C-j` は使えません。
 ローマ字のまま日本語を検索できる [migemo.el](https://github.com/emacs-jp/migemo) を併用するとよいでしょう。
 nonincremental search (`C-s RET`) では `C-j` が使えます。
 
-kkc.el の辞書 leim/ja-dic/ja-dic.el は語彙が多くありません。
-[emacs leimの日本語辞書ja-dic.elを改善する](http://maorigreen.html.xdomain.jp/memo_ja-dic_el.html) で入手できる [ja-dic.el](http://maorigreen.html.xdomain.jp/ja-dic.el) を利用する方法があります
-(この場合 kkc.el のキャッシュファイル kkcrc をリネームするか退避しておく必要があるかと思います)。
+~~kkc.el の辞書 leim/ja-dic/ja-dic.el は語彙が多くありません。~~
+~~[emacs leimの日本語辞書ja-dic.elを改善する](http://maorigreen.html.xdomain.jp/memo_ja-dic_el.html) で入手できる [ja-dic.el](http://maorigreen.html.xdomain.jp/ja-dic.el) を利用する方法があります~~
+~~(この場合 kkc.el のキャッシュファイル kkcrc をリネームするか退避しておく必要があるかと思います)。~~
+この改善策は Emacs 29 以降不要になりました。
+Emacs 29.1 の NEWS に `** Emacs no longer reduces the size of the Japanese dictionary.` との記述があります。
 
 kkc.el の変換は賢くなくて、例えば「モードレス」と入力するのに `mo-doresu` `C-j` とタイプしても「モーどれす」となったりします。
 そこで muji.el では、ローマ字の末尾に `k` を付けると、かたかなに変換確定する機能を入れました。
