@@ -252,9 +252,9 @@
 (defun muji-make-roman-pattern (rules)
   "Make `muji-roman-pattern' from RULES."
   ;; Sort in long order so that a longer Romaji sequence precedes
-  (let* ((rules (sort (mapcar (function (lambda (elt) (car elt))) rules)
-                      (function (lambda (a b) (< (length b) (length a)))))))
-    (mapconcat (function (lambda (elt) (regexp-quote elt))) rules "\\|")))
+  (let* ((rules (sort (mapcar #'(lambda (elt) (car elt)) rules)
+                      #'(lambda (a b) (< (length b) (length a))))))
+    (mapconcat #'(lambda (elt) (regexp-quote elt)) rules "\\|")))
 
 (defvar muji-roman-pattern (muji-make-roman-pattern muji-transliteration-rules)
   "Regexp that matches all roman patterns.")
@@ -334,7 +334,8 @@ Or return (nil . kana)."
   (save-match-data
     (let* ((case-fold-search t))
       (cond ((null kana) nil)
-            ((string-match "\\(.+\\)[fh]$" kana) (cons t (match-string 1 kana)))
+            ;; XXX: hard coding: hjk
+            ((string-match "\\(.+\\)h$" kana) (cons t (match-string 1 kana)))
             ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
                                                        (match-string 1 kana))))
             ((string-match "\\(.+\\)j$" kana) (cons nil (match-string 1 kana)))
@@ -344,20 +345,13 @@ Or return (nil . kana)."
   "Convert the region between BEG and END with kkc."
   (let* ((roman (buffer-substring beg end))
          (kana (muji-roman-to-kana roman))
-         ;;
          (no-kkc (muji-no-kkc kana))
          (kana (cdr no-kkc))
-         (no-kkc (car no-kkc))
-         ;;
-         )
+         (no-kkc (car no-kkc)))
     (goto-char beg)
     (delete-region beg end)
     (insert kana)
-    ;;
-    ;; (kkc-region (- (point) (length kana)) (point))
-    (when (not no-kkc) (kkc-region (- (point) (length kana)) (point)))
-    ;;
-    ))
+    (when (not no-kkc) (kkc-region (- (point) (length kana)) (point)))))
 
 (defun muji-kkc-n (n)
   "Convert last N characters string with kkc."
@@ -371,13 +365,13 @@ E.g. \"へんかん;するh\" → ((nil . \"へんかん\") (t . \"する\"))."
   (if (null muji-phrase-separator)
       (list (muji-no-kkc kana))
     (let* ((sep muji-phrase-separator)
-           ;; XXX: hard coding: fhjk
-           (re1 (regexp-opt-charset (string-to-list (concat "fhjk" sep))))
+           ;; XXX: hard coding: hjk
+           (re1 (regexp-opt-charset (string-to-list (concat "hjk" sep))))
            (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
            (kana (replace-regexp-in-string re1 "\\1 " kana))
            (kana (string-replace (concat sep " ") sep kana))
-           ;; XXX: hard coding: fhjk
-           (re2 (regexp-opt-charset (string-to-list "fhjk")))
+           ;; XXX: hard coding: hjk
+           (re2 (regexp-opt-charset (string-to-list "hjk")))
            (re2 (concat "\\(" re2 "\\) ?"))
            (kana (replace-regexp-in-string re2 "\\1 " kana)))
       (mapcar #'muji-no-kkc (split-string kana " " t)))))
@@ -432,15 +426,13 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
   :global nil
   :init-value nil
   :lighter " MJ"
-  :keymap `((,muji-rK-trans-key . muji-kkc))
-  )
+  :keymap `((,muji-rK-trans-key . muji-kkc)))
 
 ;;;###autoload
 (define-globalized-minor-mode
   global-muji-mode
   muji-mode
-  muji-on
-  )
+  muji-on)
 
 (defun muji-on ()
   (muji-mode 1))
@@ -485,10 +477,7 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
 
 (defun muji-minibuffer-setup ()
   "Activate muji-mode in minibuffer if the mode is ON in original buffer."
-  ;; (when (with-minibuffer-selected-window muji-mode)
-  ;;   (muji-mode))
-  (muji-mode (if (with-minibuffer-selected-window muji-mode) 1 -1))
-  )
+  (muji-mode (if (with-minibuffer-selected-window muji-mode) 1 -1)))
 
 (add-hook 'minibuffer-setup-hook 'muji-minibuffer-setup)
 
