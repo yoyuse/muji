@@ -278,6 +278,11 @@ Or return (nil . kana)."
             ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
                                                        (match-string 1 kana))))
             ((string-match "\\(.+\\)j$" kana) (cons nil (match-string 1 kana)))
+            ;; XXX: hard coding: #*
+            ((string-match "\\(.+\\)#$" kana) (cons t (match-string 1 kana)))
+            ((string-match "\\(.+\\)\\*$" kana)
+             (cons t (japanese-katakana (match-string 1 kana))))
+            ;;
             (t (cons nil kana))))))
 
 (defun muji-kkc-region (beg end)
@@ -304,13 +309,17 @@ E.g. \"へんかん;するh\" → ((nil . \"へんかん\") (t . \"する\"))."
   (if (null muji-phrase-separator)
       (list (muji-no-kkc kana))
     (let* ((sep muji-phrase-separator)
-           ;; XXX: hard coding: hjk
-           (re1 (regexp-opt-charset (string-to-list (concat "hjk" sep))))
+           ;; ;; XXX: hard coding: hjk
+           ;; (re1 (regexp-opt-charset (string-to-list (concat "hjk" sep))))
+           ;; XXX: hard coding: hjk#*
+           (re1 (regexp-opt-charset (string-to-list (concat "hjk#*" sep))))
            (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
            (kana (replace-regexp-in-string re1 "\\1 " kana))
            (kana (string-replace (concat sep " ") sep kana))
-           ;; XXX: hard coding: hjk
-           (re2 (regexp-opt-charset (string-to-list "hjk")))
+           ;; ;; XXX: hard coding: hjk
+           ;; (re2 (regexp-opt-charset (string-to-list "hjk")))
+           ;; XXX: hard coding: hjk#*
+           (re2 (regexp-opt-charset (string-to-list "hjk#*")))
            (re2 (concat "\\(" re2 "\\) ?"))
            (kana (replace-regexp-in-string re2 "\\1 " kana)))
       (mapcar #'muji-no-kkc (split-string kana " " t)))))
