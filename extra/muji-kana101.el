@@ -36,8 +36,10 @@
 ;;   :prefix "muji-kana101-")
 
 (setq muji-delimiter ":")
-
 (setq muji-stop-chars nil)
+(setq muji-phrase-separator "J")
+(setq muji-hiragana-nfer "H")
+(setq muji-katakana-nfer "K")
 
 (setq muji-transliteration-rules
       '(( "3" "あ") ( "e" "い") ( "4" "う") ( "5" "え") ( "6" "お")

@@ -31,15 +31,15 @@
 (require 'muji)
 
 ;; (defgroup muji-newjis101 nil
-;;   "JIS kana input for muji."
+;;   "new JIS kana input for muji."
 ;;   :group 'muji
 ;;   :prefix "muji-newjis101-")
 
 (setq muji-delimiter "~")
-
 (setq muji-stop-chars "()")
-
 (setq muji-phrase-separator "?")
+(setq muji-hiragana-nfer "#")
+(setq muji-katakana-nfer "*")
 
 (setq muji-transliteration-rules
       '(( "b" "あ") ( "k" "い") ( "j" "う") ( "U" "え") ( "J" "お")

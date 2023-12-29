@@ -65,6 +65,16 @@
   :type '(choice string (const nil))
   :group 'muji)
 
+(defcustom muji-hiragana-nfer "h"
+  "Hiragana conversion suffix."
+  :type 'string
+  :group 'muji)
+
+(defcustom muji-katakana-nfer "k"
+  "Katakana conversion suffix."
+  :type 'string
+  :group 'muji)
+
 ;; cf. quail-japanese-use-double-n
 (defcustom muji-use-double-n nil
   "If non-nil, use type \"nn\" to insert ん."
@@ -265,37 +275,32 @@ If no roman string found, return nil."
                (roman (if delimiter (concat delimiter roman) roman)))
           (cons roman kana))))))
 
-(defun muji-no-kkc (kana)
-  "If kana ends with \"h\", return (t . hiragana).
-Or if kana ends with \"k\", convert kana to katakana and return (t . katakana).
-Or if kana ends with \"j\", return (nil . kana).
-Or return (nil . kana)."
+(defun muji-nfer (kana)
+  "If KANA ends with `muji-hiragana-nfer', return (t . hiragana).
+Or if KANA ends with `muji-katakana-nfer', convert hiragana to katakana
+and return (t . katakana). Or return (nil . kana)."
   (save-match-data
-    (let* ((case-fold-search t))
+    (let* ((case-fold-search t)
+           (re-hira (regexp-quote muji-hiragana-nfer))
+           (re-kata (regexp-quote muji-katakana-nfer)))
       (cond ((null kana) nil)
-            ;; XXX: hard coding: hjk
-            ((string-match "\\(.+\\)h$" kana) (cons t (match-string 1 kana)))
-            ((string-match "\\(.+\\)k$" kana) (cons t (japanese-katakana
-                                                       (match-string 1 kana))))
-            ((string-match "\\(.+\\)j$" kana) (cons nil (match-string 1 kana)))
-            ;; XXX: hard coding: #*
-            ((string-match "\\(.+\\)#$" kana) (cons t (match-string 1 kana)))
-            ((string-match "\\(.+\\)\\*$" kana)
+            ((string-match (concat "\\(.+\\)" re-hira "$") kana)
+             (cons t (match-string 1 kana)))
+            ((string-match (concat "\\(.+\\)" re-kata "$") kana)
              (cons t (japanese-katakana (match-string 1 kana))))
-            ;;
             (t (cons nil kana))))))
 
 (defun muji-kkc-region (beg end)
   "Convert the region between BEG and END with kkc."
   (let* ((roman (buffer-substring beg end))
          (kana (muji-roman-to-kana roman))
-         (no-kkc (muji-no-kkc kana))
-         (kana (cdr no-kkc))
-         (no-kkc (car no-kkc)))
+         (nfer (muji-nfer kana))
+         (kana (cdr nfer))
+         (nfer (car nfer)))
     (goto-char beg)
     (delete-region beg end)
     (insert kana)
-    (when (not no-kkc) (kkc-region (- (point) (length kana)) (point)))))
+    (when (not nfer) (kkc-region (- (point) (length kana)) (point)))))
 
 (defun muji-kkc-n (n)
   "Convert last N characters string with kkc."
@@ -307,22 +312,18 @@ Or return (nil . kana)."
   "Split string KANA into phrase list by `muji-phrase-separator'.
 E.g. \"へんかん;するh\" → ((nil . \"へんかん\") (t . \"する\"))."
   (if (null muji-phrase-separator)
-      (list (muji-no-kkc kana))
+      (list (muji-nfer kana))
     (let* ((sep muji-phrase-separator)
-           ;; ;; XXX: hard coding: hjk
-           ;; (re1 (regexp-opt-charset (string-to-list (concat "hjk" sep))))
-           ;; XXX: hard coding: hjk#*
-           (re1 (regexp-opt-charset (string-to-list (concat "hjk#*" sep))))
+           (hira muji-hiragana-nfer)
+           (kata muji-katakana-nfer)
+           (re1 (regexp-opt-charset (string-to-list (concat hira kata sep))))
            (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
            (kana (replace-regexp-in-string re1 "\\1 " kana))
            (kana (string-replace (concat sep " ") sep kana))
-           ;; ;; XXX: hard coding: hjk
-           ;; (re2 (regexp-opt-charset (string-to-list "hjk")))
-           ;; XXX: hard coding: hjk#*
-           (re2 (regexp-opt-charset (string-to-list "hjk#*")))
+           (re2 (regexp-opt-charset (string-to-list (concat hira kata))))
            (re2 (concat "\\(" re2 "\\) ?"))
            (kana (replace-regexp-in-string re2 "\\1 " kana)))
-      (mapcar #'muji-no-kkc (split-string kana " " t)))))
+      (mapcar #'muji-nfer (split-string kana " " t)))))
 
 (defun muji-kkc-phrases (&optional inverse-remove-space)
   "Convert the current phrases with kkc.
@@ -341,9 +342,9 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
           (dolist (part parts) (insert (cdr part)))
           (delete-region (point) (+ (point) (length roman))))
         (dolist (part parts)
-          (let* ((no-kkc (car part))
+          (let* ((nfer (car part))
                  (phrase (cdr part)))
-            (cond (no-kkc (forward-char (length phrase)))
+            (cond (nfer (forward-char (length phrase)))
                   (t (kkc-region (point) (+ (point) (length phrase)))))))
         (when muji-remove-space
           (undo-boundary)
