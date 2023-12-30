@@ -294,13 +294,18 @@ and return (t . katakana). Or return (nil . kana)."
   "Convert the region between BEG and END with kkc."
   (let* ((roman (buffer-substring beg end))
          (kana (muji-roman-to-kana roman))
-         (nfer (muji-nfer kana))
-         (kana (cdr nfer))
-         (nfer (car nfer)))
+         (parts (muji-split-phrases kana)))
+    (deactivate-mark)
     (goto-char beg)
-    (delete-region beg end)
-    (insert kana)
-    (when (not nfer) (kkc-region (- (point) (length kana)) (point)))))
+    (save-excursion
+      (delete-region beg end)
+      (dolist (part parts) (insert (cdr part))))
+    ;; XXX: code copy
+    (dolist (part parts)
+      (let* ((nfer (car part))
+             (phrase (cdr part)))
+        (cond (nfer (forward-char (length phrase)))
+              (t (kkc-region (point) (+ (point) (length phrase)))))))))
 
 (defun muji-kkc-n (n)
   "Convert last N characters string with kkc."
@@ -312,18 +317,18 @@ and return (t . katakana). Or return (nil . kana)."
   "Split string KANA into phrase list by `muji-phrase-separator'.
 E.g. \"へんかん;するh\" → ((nil . \"へんかん\") (t . \"する\"))."
   (if (null muji-phrase-separator)
-      (list (muji-nfer kana))
+      (list (cons nil kana))
     (let* ((sep muji-phrase-separator)
            (hira muji-hiragana-nfer)
            (kata muji-katakana-nfer)
            (re1 (regexp-opt-charset (string-to-list (concat hira kata sep))))
            (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
-           (kana (replace-regexp-in-string re1 "\\1 " kana))
-           (kana (string-replace (concat sep " ") sep kana))
+           (kana (replace-regexp-in-string re1 "\\1\0" kana))
+           (kana (string-replace (concat sep "\0") sep kana))
            (re2 (regexp-opt-charset (string-to-list (concat hira kata))))
-           (re2 (concat "\\(" re2 "\\) ?"))
-           (kana (replace-regexp-in-string re2 "\\1 " kana)))
-      (mapcar #'muji-nfer (split-string kana " " t)))))
+           (re2 (concat "\\(" re2 "\\)\0?"))
+           (kana (replace-regexp-in-string re2 "\\1\0" kana)))
+      (mapcar #'muji-nfer (split-string kana "\0" t)))))
 
 (defun muji-kkc-phrases (&optional inverse-remove-space)
   "Convert the current phrases with kkc.
@@ -341,6 +346,7 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
         (save-excursion
           (dolist (part parts) (insert (cdr part)))
           (delete-region (point) (+ (point) (length roman))))
+        ;; XXX: code copy
         (dolist (part parts)
           (let* ((nfer (car part))
                  (phrase (cdr part)))
