@@ -218,11 +218,17 @@
 (defvar muji-roman-pattern (muji-make-roman-pattern muji-transliteration-rules)
   "Regexp that matches all roman patterns.")
 
+;; Emacs 27 does not have `string-replace'
+(defun muji-string-replace (from-string to-string in-string)
+  (save-match-data
+    (replace-regexp-in-string
+     (regexp-quote from-string) to-string in-string t t)))
+
 (defun muji-normalize-n (string)
   "Normalize spellings for \"ん\" to \"n'\"."
   (save-match-data
     (let* ((case-fold-search nil)
-           (string (if muji-use-double-n (string-replace "nn" "n'" string)
+           (string (if muji-use-double-n (muji-string-replace "nn" "n'" string)
                      string))
            ;; XXX: hard coding
            (pattern "n\\([^'aiueoy]\\|$\\)"))
@@ -324,7 +330,7 @@ E.g. \"へんかん;するh\" → ((nil . \"へんかん\") (t . \"する\"))."
            (re1 (regexp-opt-charset (string-to-list (concat hira kata sep))))
            (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
            (kana (replace-regexp-in-string re1 "\\1\0" kana))
-           (kana (string-replace (concat sep "\0") sep kana))
+           (kana (muji-string-replace (concat sep "\0") sep kana))
            (re2 (regexp-opt-charset (string-to-list (concat hira kata))))
            (re2 (concat "\\(" re2 "\\)\0?"))
            (kana (replace-regexp-in-string re2 "\\1\0" kana)))
