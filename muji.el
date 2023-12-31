@@ -218,6 +218,15 @@
 (defvar muji-roman-pattern (muji-make-roman-pattern muji-transliteration-rules)
   "Regexp that matches all roman patterns.")
 
+(defun muji-delimiter () muji-delimiter)
+(defun muji-stop-chars () muji-stop-chars)
+(defun muji-phrase-separator () muji-phrase-separator)
+(defun muji-hiragana-nfer () muji-hiragana-nfer)
+(defun muji-katakana-nfer () muji-katakana-nfer)
+(defun muji-transliteration-rules () muji-transliteration-rules)
+(defun muji-roman-pattern () muji-roman-pattern)
+(defun muji-active-cursor-color () muji-active-cursor-color)
+
 ;; Emacs 27 does not have `string-replace'
 (defun muji-string-replace (from-string to-string in-string)
   (save-match-data
@@ -248,10 +257,10 @@
     (let* ((case-fold-search nil)
            (string (muji-double-consonant-to-sokuon string))
            (string (muji-normalize-n string))
-           (pattern (concat "\\(" muji-roman-pattern "\\).*\\'")))
+           (pattern (concat "\\(" (muji-roman-pattern) "\\).*\\'")))
       (while (string-match pattern string)
         (let* ((match (match-string 1 string))
-               (kana (cadr (assoc match muji-transliteration-rules)))
+               (kana (cadr (assoc match (muji-transliteration-rules))))
                (kana (if (vectorp kana) (aref kana 0) kana)))
           (setq string
                 (replace-regexp-in-string pattern kana string nil nil 1))))
@@ -262,8 +271,8 @@
 If no roman string found, return nil."
   (save-match-data
     (let* ((case-fold-search nil)
-           (delimiter (or muji-delimiter ""))
-           (stop-chars (or muji-stop-chars ""))
+           (delimiter (or (muji-delimiter) ""))
+           (stop-chars (or (muji-stop-chars) ""))
            (pattern
             (concat
              "\\(" (regexp-quote delimiter) "\\)?" "\\("
@@ -287,8 +296,8 @@ Or if KANA ends with `muji-katakana-nfer', convert hiragana to katakana
 and return (t . katakana). Or return (nil . kana)."
   (save-match-data
     (let* ((case-fold-search t)
-           (re-hira (regexp-quote muji-hiragana-nfer))
-           (re-kata (regexp-quote muji-katakana-nfer)))
+           (re-hira (regexp-quote (muji-hiragana-nfer)))
+           (re-kata (regexp-quote (muji-katakana-nfer))))
       (cond ((null kana) nil)
             ((string-match (concat "\\(.+\\)" re-hira "$") kana)
              (cons t (match-string 1 kana)))
@@ -322,11 +331,11 @@ and return (t . katakana). Or return (nil . kana)."
 (defun muji-split-phrases (kana)
   "Split string KANA into phrase list by `muji-phrase-separator'.
 E.g. \"へんかん;するh\" → ((nil . \"へんかん\") (t . \"する\"))."
-  (if (null muji-phrase-separator)
+  (if (null (muji-phrase-separator))
       (list (cons nil kana))
-    (let* ((sep muji-phrase-separator)
-           (hira muji-hiragana-nfer)
-           (kata muji-katakana-nfer)
+    (let* ((sep (muji-phrase-separator))
+           (hira (muji-hiragana-nfer))
+           (kata (muji-katakana-nfer))
            (re1 (regexp-opt-charset (string-to-list (concat hira kata sep))))
            (re1 (concat "\\(" re1 "?\\)" (regexp-quote sep)))
            (kana (replace-regexp-in-string re1 "\\1\0" kana))
@@ -411,9 +420,9 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
 
 (defun muji-set-cursor-color ()
   "Set cursor color according to `muji-mode'."
-  (when muji-active-cursor-color
+  (when (muji-active-cursor-color)
     (set-cursor-color
-     (if muji-mode muji-active-cursor-color muji-inactive-cursor-color))))
+     (if muji-mode (muji-active-cursor-color) muji-inactive-cursor-color))))
 
 (add-hook 'post-command-hook 'muji-set-cursor-color)
 
