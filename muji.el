@@ -1,6 +1,6 @@
 ;;; muji.el --- Modeless UX for Japanese Input       -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2023  YUSE Yosihiro
+;; Copyright (C) 2023, 2024  YUSE Yosihiro
 
 ;; Author: YUSE Yosihiro <yoyuse@gmail.com>
 ;; Keywords: modeless japanese input
@@ -73,6 +73,12 @@
 (defcustom muji-katakana-nfer "k"
   "Katakana conversion suffix."
   :type 'string
+  :group 'muji)
+
+(defcustom muji-comma-period nil
+  "If nil, use \"、\" and \"。\". If t, use \"，\" and \"．\".
+If cons of strings, use its car and cdr."
+  :type '(choice boolean (cons string string))
   :group 'muji)
 
 ;; cf. quail-japanese-use-double-n
@@ -251,12 +257,29 @@
            (pattern "\\([bcdfghjklmpqrstvwxyz]\\)\\1"))
       (replace-regexp-in-string pattern "っ\\1" string))))
 
+(defun muji-preprocess (string)
+  "Preprocess STRING and return it."
+  (muji-double-consonant-to-sokuon (muji-normalize-n string)))
+
+(defun muji-punctuation (string)
+  "Convert punctuations in STRING according to `muji-comma-period'."
+  (cond ((eq t muji-comma-period)
+         (muji-string-replace "。" "．" (muji-string-replace "、" "，" string)))
+        ((consp muji-comma-period)
+         (muji-string-replace "。" (cdr muji-comma-period)
+                              (muji-string-replace "、" (car muji-comma-period)
+                                                   string)))
+        (t string)))
+
+(defun muji-postprocess (string)
+  "Postprocess STRING and return it."
+  (muji-punctuation string))
+
 (defun muji-roman-to-kana (string)
   "Convert roman string in STRING to kana and return it."
   (save-match-data
     (let* ((case-fold-search nil)
-           (string (muji-double-consonant-to-sokuon string))
-           (string (muji-normalize-n string))
+           (string (muji-preprocess string))
            (pattern (concat "\\(" (muji-roman-pattern) "\\).*\\'")))
       (while (string-match pattern string)
         (let* ((match (match-string 1 string))
@@ -264,7 +287,7 @@
                (kana (if (vectorp kana) (aref kana 0) kana)))
           (setq string
                 (replace-regexp-in-string pattern kana string nil nil 1))))
-      string)))
+      (muji-postprocess string))))
 
 (defun muji-backward-roman-to-kana (string)
   "Find roman string in STRING at its tail and return (roman . kana).

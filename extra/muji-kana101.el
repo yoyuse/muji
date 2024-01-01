@@ -1,6 +1,6 @@
 ;;; muji-kana101.el --- JIS kana input for muji      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2023  YUSE Yosihiro
+;; Copyright (C) 2023, 2024  YUSE Yosihiro
 
 ;; Author: YUSE Yosihiro <yoyuse@gmail.com>
 ;; Keywords: modeless japanese input
@@ -146,10 +146,8 @@
 (defun muji-katakana-nfer () muji-kana101-katakana-nfer)
 (defun muji-transliteration-rules () muji-kana101-transliteration-rules)
 (defun muji-roman-pattern () muji-kana101-roman-pattern)
+(defun muji-preprocess (string) string)
 (defun muji-active-cursor-color () muji-kana101-active-cursor-color)
-
-(defun muji-normalize-n (string) string)
-(defun muji-double-consonant-to-sokuon (string) string)
 
 ;;; provide
 
