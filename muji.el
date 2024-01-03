@@ -50,6 +50,11 @@
   :type 'boolean
   :group 'muji)
 
+(defcustom muji-remove-space-regexp "[a-zA-Z0-9/]"
+  "Space after string ending with the regexp is removed when `muji-remove-space'"
+  :type 'regexp
+  :group 'muji)
+
 (defcustom muji-delimiter ":"
   "Delimiter between ASCII and roman strings."
   :type '(choice string (const nil))
@@ -397,7 +402,7 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
             (let* ((str (buffer-substring-no-properties
                          (max (point-at-bol) (- (point) 2))
                          (point))))
-              (when (string-match-p "\\w " str)
+              (when (string-match-p (concat muji-remove-space-regexp " ") str)
                 (backward-delete-char 1)))))))))
 
 ;;;###autoload
