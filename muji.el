@@ -423,7 +423,7 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
   "Modeless UX for Japanese Input."
   :global nil
   :init-value nil
-  :lighter " MJ"
+  :lighter " Muji"
   :keymap `((,muji-rK-trans-key . muji-kkc)))
 
 ;;;###autoload
