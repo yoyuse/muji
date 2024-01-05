@@ -2,6 +2,7 @@
 
 # usage: cat kana101.txt | perl hhkbfig.pl > kana101.svg
 
+# 2024-01-04 for yoko50.txt
 # 2023-12-28 renamed from kana101.pl
 # 2023-12-27 Delete
 # 2023-12-26 from wmacs.pl
@@ -106,7 +107,8 @@ sub do_def(@) {
                 &strip($a); &strip($b);
                 next if $b eq "";
                 # unshift 側
-                my ($unmodunshift, $modunshift) = split / /, $b;
+                # my ($unmodunshift, $modunshift) = split / /, $b;
+                my ($unmodunshift, $modunshift) = split /(?: |(?![ -~]))/, $b;
                 # shift 側
                 my ($unmodshift, $modshift) = split / /, $a;
                 #
