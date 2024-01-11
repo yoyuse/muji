@@ -129,12 +129,10 @@
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="604.5" y="55.5" />
 		<text x="606.5" y="87.5">[</text>
 		<text x="606.5" y="69.5">{</text>
-		<text x="624.5" y="69.5">「</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="650.5" y="52.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="656.5" y="55.5" />
 		<text x="658.5" y="87.5">]</text>
 		<text x="658.5" y="69.5">}</text>
-		<text x="676.5" y="69.5">」</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="77" x="702.5" y="52.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="65" x="708.5" y="55.5" />
 		<text x="710.5" y="78.5">Delete</text>
@@ -252,10 +250,14 @@
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="487.5" y="159.5" />
 		<text x="489.5" y="191.5">、</text>
 		<text x="489.5" y="173.5">&lt;</text>
+		<text x="507.5" y="191.5">『</text>
+		<text x="507.5" y="173.5">「</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="533.5" y="156.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="539.5" y="159.5" />
 		<text x="541.5" y="191.5">。</text>
 		<text x="541.5" y="173.5">&gt;</text>
+		<text x="559.5" y="191.5">』</text>
+		<text x="559.5" y="173.5">」</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="585.5" y="156.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="591.5" y="159.5" />
 		<text x="593.5" y="191.5">/</text>
