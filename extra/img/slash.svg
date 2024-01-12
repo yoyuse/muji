@@ -99,22 +99,22 @@
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="396.5" y="55.5" />
 		<text x="398.5" y="69.5">U</text>
 		<text x="416.5" y="87.5">◎</text>
-		<text x="416.5" y="69.5">♪</text>
+		<text x="416.5" y="69.5">&#163;</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="442.5" y="52.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="448.5" y="55.5" />
 		<text x="450.5" y="69.5">I</text>
-		<text x="468.5" y="87.5">∞</text>
+		<text x="468.5" y="87.5">&#162;</text>
 		<text x="468.5" y="69.5">&#215;</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="494.5" y="52.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="500.5" y="55.5" />
 		<text x="502.5" y="69.5">O</text>
-		<text x="520.5" y="87.5">⇒</text>
-		<text x="520.5" y="69.5">【</text>
+		<text x="520.5" y="87.5">≠</text>
+		<text x="520.5" y="69.5">&#177;</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="546.5" y="52.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="552.5" y="55.5" />
 		<text x="554.5" y="69.5">P</text>
 		<text x="572.5" y="87.5">〒</text>
-		<text x="572.5" y="69.5">】</text>
+		<text x="572.5" y="69.5">∞</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="598.5" y="52.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="604.5" y="55.5" />
 		<text x="606.5" y="87.5">[</text>
@@ -152,8 +152,8 @@
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="299.5" y="104.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="305.5" y="107.5" />
 		<text x="307.5" y="121.5">G</text>
-		<text x="325.5" y="139.5">〆</text>
-		<text x="325.5" y="121.5">&#167;</text>
+		<text x="325.5" y="139.5">‐</text>
+		<text x="325.5" y="121.5">—</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="351.5" y="104.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="357.5" y="107.5" />
 		<text x="359.5" y="121.5">H</text>
@@ -163,23 +163,23 @@
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="409.5" y="107.5" />
 		<text x="411.5" y="121.5">J</text>
 		<text x="429.5" y="139.5">↓</text>
-		<text x="429.5" y="121.5">“</text>
+		<text x="429.5" y="121.5">’</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="455.5" y="104.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="461.5" y="107.5" />
 		<text x="463.5" y="121.5">K</text>
 		<text x="481.5" y="139.5">↑</text>
-		<text x="481.5" y="121.5">”</text>
+		<text x="481.5" y="121.5">“</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="507.5" y="104.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="513.5" y="107.5" />
 		<text x="515.5" y="121.5">L</text>
 		<text x="533.5" y="139.5">→</text>
-		<text x="533.5" y="121.5">’</text>
+		<text x="533.5" y="121.5">”</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="559.5" y="104.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="565.5" y="107.5" />
 		<text x="567.5" y="139.5">;</text>
 		<text x="567.5" y="121.5">:</text>
-		<text x="585.5" y="139.5">〜</text>
-		<text x="585.5" y="121.5">∴</text>
+		<text x="585.5" y="139.5">＼</text>
+		<text x="585.5" y="121.5">‖</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="611.5" y="104.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="617.5" y="107.5" />
 		<text x="619.5" y="139.5">&apos;</text>
@@ -213,13 +213,13 @@
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="325.5" y="156.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="331.5" y="159.5" />
 		<text x="333.5" y="173.5">B</text>
-		<text x="351.5" y="191.5">≡</text>
-		<text x="351.5" y="173.5">≒</text>
+		<text x="351.5" y="191.5">〆</text>
+		<text x="351.5" y="173.5">&#167;</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="377.5" y="156.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="383.5" y="159.5" />
 		<text x="385.5" y="173.5">N</text>
-		<text x="403.5" y="191.5">≠</text>
-		<text x="403.5" y="173.5">&#177;</text>
+		<text x="403.5" y="191.5">〜</text>
+		<text x="403.5" y="173.5">∴</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="429.5" y="156.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="435.5" y="159.5" />
 		<text x="437.5" y="173.5">M</text>
@@ -228,14 +228,14 @@
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="487.5" y="159.5" />
 		<text x="489.5" y="191.5">,</text>
 		<text x="489.5" y="173.5">&lt;</text>
-		<text x="507.5" y="191.5">—</text>
-		<text x="507.5" y="173.5">≦</text>
+		<text x="507.5" y="191.5">‥</text>
+		<text x="507.5" y="173.5">【</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="533.5" y="156.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="539.5" y="159.5" />
 		<text x="541.5" y="191.5">.</text>
 		<text x="541.5" y="173.5">&gt;</text>
 		<text x="559.5" y="191.5">…</text>
-		<text x="559.5" y="173.5">≧</text>
+		<text x="559.5" y="173.5">】</text>
 		<rect height="51" rx="5" ry="5" style="fill: #cccccc; stroke: #000000; stroke-width: 1" width="51" x="585.5" y="156.5" />
 		<rect height="40" rx="3" ry="3" style="fill: #fcfcfc" width="39" x="591.5" y="159.5" />
 		<text x="593.5" y="191.5">/</text>
