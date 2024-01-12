@@ -2,7 +2,8 @@
 
 # usage: cat kana101.txt | perl hhkbfig.pl > kana101.svg
 
-# 2024-01-09
+# 2024-01-12 font-family: system-ui;
+# 2024-01-09 for slash.txt
 # 2024-01-04 for yoko50.txt
 # 2023-12-28 renamed from kana101.pl
 # 2023-12-27 Delete
@@ -160,7 +161,8 @@ sub do_svg() {
 
     my $fontSize = "${g_fontSize}px";
     # my $fontFamily = "Verdana";
-    my $fontFamily = "Verdana, HiraginoSans-W4";
+    # my $fontFamily = "Verdana, HiraginoSans-W4";
+    my $fontFamily = "system-ui";
     $g = $svg->group(transform => "translate($kbdMarginH, $kbdMarginV)", style => {"font-family" => $fontFamily, "font-size" => $fontSize});
 
     for (@g_obj) {&svg_putKey($g, $_);}
