@@ -1,4 +1,4 @@
-# muji-gtc
+# kkc-gtc
 
 ## これは何?
 
@@ -13,17 +13,14 @@ kkc の代わりに [Google CGI API for Japanese Input](https://www.google.co.jp
 
 ## 使用法
 
-muji-gtc.el を `load-path` の通ったところにおいて init.el に次のように書きます。
+kkc-gtc.el を `load-path` の通ったところにおいて init.el に次のように書きます。
+
+kkc の キャッシュファイル kkcrc のバックアップを取っておくことをおすすめします。
 
 ``` emacs-lisp
-(require 'muji)
-(require 'muji-gtc)
-(setq muji-gtc-enable-gtc-p t)
-(define-key global-map (kbd "C-x C-\\") 'global-muji-mode)
+(require 'kkc-gtc)
+(setq kkc-gtc-enable-gtc-p t)
 ```
-
-`C-x C-\` で muji グローバルマイナーモードを起動し `C-j` で変換する点は同じです。
-念のため kkc の キャッシュファイル kkcrc のバックアップを取っておくことをおすすめします。
 
 ## 補足
 
@@ -33,6 +30,6 @@ kkc のキー操作 (文節の区切り直し、ひらがな変換、かたか�
 kkc のキャッシュファイル kkcrc は使わず (見ない、触らない)、
 変換結果の学習はしません。
 
-文節区切りの `h;`/`k;`/`;` は muji-gtc でも使えます。
+muji の文節区切りの `h;`/`k;`/`;` は kkc-gtc でも使えます。
 逆に `;` などで明示的に区切らないと、すべての文節を区切らない、いわば「全文節変換」になります。
 この場合でも `C-i` や `C-o` で区切り直すことは可能です。

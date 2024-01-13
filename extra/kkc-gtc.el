@@ -1,9 +1,9 @@
-;;; muji-gtc.el --- Google Transliterate Conversion for muji  -*- lexical-binding: t; -*-
+;;; kkc-gtc.el --- Google Transliterate Conversion for kkc  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024  YUSE Yosihiro
 
 ;; Author: YUSE Yosihiro <yoyuse@gmail.com>
-;; Keywords: modeless japanese input
+;; Keywords: japanese input
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -22,10 +22,8 @@
 
 ;;; Setup:
 
-;; (require 'muji)
-;; (require 'muji-gtc)
-;; (setq muji-gtc-enable-gtc-p t)
-;; (define-key global-map (kbd "C-x C-\\") 'global-muji-mode)
+;; (require 'kkc-gtc)
+;; (setq kkc-gtc-enable-gtc-p t)
 
 ;;; Code:
 
@@ -33,18 +31,16 @@
 (require 'json)
 (require 'kkc)
 
-(require 'muji)
-
 ;; custom var
 
-(defcustom muji-gtc-enable-gtc-p nil
+(defcustom kkc-gtc-enable-gtc-p nil
   "非 nil のとき Google Transliterate で変換を行う."
-  :group 'muji
+  :group 'kkc-gtc
   :type 'boolean)
 
 ;; main
 
-(defun muji-gtc-google-transliterate (string)
+(defun kkc-gtc-google-transliterate (string)
   "ひらがな文字列 STRING を Google Transliterate して結果をリストにして返す.
 
 - Google 日本語入力 - CGI API デベロッパーガイド
@@ -72,12 +68,12 @@
 
 ;; replacement for skkdic-lookup-key in kkc-lookup-key
 
-(defun muji-gtc-lookup-key (key len &optional postfix prefer-noun)
+(defun kkc-gtc-lookup-key (key len &optional postfix prefer-noun)
   "かなの配列 KEY の長さ LEN 分の変換候補のリストを返す.
 POSTFIX と PREFER-NOUN は無視される."
   (let* ((string (concat key))
          (string (substring string 0 len)))
-    (car (muji-gtc-google-transliterate (concat string ",")))))
+    (car (kkc-gtc-google-transliterate (concat string ",")))))
 
 ;; kkc-lookup-key from kkc.el.gz
 
@@ -86,7 +82,7 @@ POSTFIX と PREFER-NOUN は無視される."
 ;; LEN.  If no conversion is found in the dictionary, don't change
 ;; kkc-current-conversions and return nil.
 ;; Postfixes are handled only if POSTFIX is non-nil.
-(defun muji-gtc-kkc-lookup-key (len &optional postfix prefer-noun)
+(defun kkc-gtc-kkc-lookup-key (len &optional postfix prefer-noun)
   ;; <MODIFIED>
   ;; ;; At first, prepare cache data if any.
   ;; (unless kkc-init-file-flag
@@ -110,7 +106,7 @@ POSTFIX と PREFER-NOUN は無視される."
 	      kkc-current-conversions (car entry))
       ;; <MODIFIED>
       ;; (setq entry (skkdic-lookup-key kkc-current-key len postfix prefer-noun))
-      (setq entry (muji-gtc-lookup-key kkc-current-key len postfix prefer-noun))
+      (setq entry (kkc-gtc-lookup-key kkc-current-key len postfix prefer-noun))
       ;; </MODIFIED>
       (if entry
 	  (progn
@@ -133,7 +129,7 @@ POSTFIX と PREFER-NOUN は無視される."
 
 ;; kkc-next from kkc.el.gz
 
-(defun muji-gtc-kkc-next ()
+(defun kkc-gtc-kkc-next ()
   "Select the next candidate of conversion."
   (interactive)
   (let ((idx (1+ (car kkc-current-conversions))))
@@ -156,7 +152,7 @@ POSTFIX と PREFER-NOUN は無視される."
 
 ;; kkc-prev from kkc.el.gz
 
-(defun muji-gtc-kkc-prev ()
+(defun kkc-gtc-kkc-prev ()
   "Select the previous candidate of conversion."
   (interactive)
   (let ((idx (1- (car kkc-current-conversions))))
@@ -177,23 +173,39 @@ POSTFIX と PREFER-NOUN は無視される."
 
 ;; advice
 
-(defun muji-gtc-pre-kkc (&optional arg)
-  (when muji-gtc-enable-gtc-p
-    (advice-add 'kkc-lookup-key :override #'muji-gtc-kkc-lookup-key)
-    (advice-add 'kkc-next :override #'muji-gtc-kkc-next)
-    (advice-add 'kkc-prev :override #'muji-gtc-kkc-prev)))
+;; (defun muji-gtc-pre-kkc (&optional arg)
+;;   (when muji-gtc-enable-gtc-p
+;;     (advice-add 'kkc-lookup-key :override #'muji-gtc-kkc-lookup-key)
+;;     (advice-add 'kkc-next :override #'muji-gtc-kkc-next)
+;;     (advice-add 'kkc-prev :override #'muji-gtc-kkc-prev)))
 
-(defun muji-gtc-post-kkc (&optional arg)
-  (when muji-gtc-enable-gtc-p
-    (advice-remove 'kkc-lookup-key #'muji-gtc-kkc-lookup-key)
-    (advice-remove 'kkc-next #'muji-gtc-kkc-next)
-    (advice-remove 'kkc-prev #'muji-gtc-kkc-prev)))
+;; (defun muji-gtc-post-kkc (&optional arg)
+;;   (when muji-gtc-enable-gtc-p
+;;     (advice-remove 'kkc-lookup-key #'muji-gtc-kkc-lookup-key)
+;;     (advice-remove 'kkc-next #'muji-gtc-kkc-next)
+;;     (advice-remove 'kkc-prev #'muji-gtc-kkc-prev)))
 
-(advice-add 'muji-kkc :before #'muji-gtc-pre-kkc)
+;; (advice-add 'muji-kkc :before #'muji-gtc-pre-kkc)
 
-(advice-add 'muji-kkc :after #'muji-gtc-post-kkc)
+;; (advice-add 'muji-kkc :after #'muji-gtc-post-kkc)
+
+(defun kkc-gtc-pre-kkc (from to)
+  (when kkc-gtc-enable-gtc-p
+    (advice-add 'kkc-lookup-key :override #'kkc-gtc-kkc-lookup-key)
+    (advice-add 'kkc-next :override #'kkc-gtc-kkc-next)
+    (advice-add 'kkc-prev :override #'kkc-gtc-kkc-prev)))
+
+(defun kkc-gtc-post-kkc (from to)
+  (when kkc-gtc-enable-gtc-p
+    (advice-remove 'kkc-lookup-key #'kkc-gtc-kkc-lookup-key)
+    (advice-remove 'kkc-next #'kkc-gtc-kkc-next)
+    (advice-remove 'kkc-prev #'kkc-gtc-kkc-prev)))
+
+(advice-add 'kkc-region :before #'kkc-gtc-pre-kkc)
+
+(advice-add 'kkc-region :after #'kkc-gtc-post-kkc)
 
 ;;; provide
 
-(provide 'muji-gtc)
-;;; muji-gtc.el ends here
+(provide 'kkc-gtc)
+;;; kkc-gtc.el ends here
