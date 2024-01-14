@@ -13,9 +13,9 @@ kkc の代わりに [Google CGI API for Japanese Input](https://www.google.co.jp
 
 ## 使用法
 
-kkc-gtc.el を `load-path` の通ったところにおいて init.el に次のように書きます。
+kkc-gtc.el を `load-path` の通ったところに置いて init.el に次のように書きます。
 
-kkc の キャッシュファイル kkcrc のバックアップを取っておくことをおすすめします。
+kkc のキャッシュファイル kkcrc のバックアップを取っておくことをおすすめします。
 
 ``` emacs-lisp
 (require 'kkc-gtc)
