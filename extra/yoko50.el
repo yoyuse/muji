@@ -50,12 +50,12 @@
          (save-excursion
            ;; (setq quail-translating nil) ; XXX: ???
            (let* ((beg (overlay-start quail-conv-overlay))
-                  ;; (end (overlay-end quail-conv-overlay))
-                  (end (point))
+                  (end (overlay-end quail-conv-overlay))
+                  (point (point))
                   char)
              (cond ((and (number-or-marker-p beg) (number-or-marker-p end)
-                         (< beg end) (string= "m" quail-current-key))
-                    (goto-char (1- end))
+                         (< beg point) (string= "m" quail-current-key))
+                    (goto-char (1- point))
                     (setq char (char-after))
                     (cond ((looking-at-p
                             "[うかきくけこさしすせそたちつてとはひふへほ]")
@@ -64,12 +64,12 @@
                            (delete-char 1)
                            ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg (point)))
+                                 (buffer-substring beg end))
                            ;;
                            )))
                    ((and (number-or-marker-p beg) (number-or-marker-p end)
-                         (< (1+ beg) end) (string= "km" quail-current-key))
-                    (goto-char (- end 2))
+                         (< (1+ beg) point) (string= "km" quail-current-key))
+                    (goto-char (- point 2))
                     (setq char (char-after))
                     (cond ((looking-at-p "[はひふへほ]")
                            (setq quail-current-str "")
@@ -77,7 +77,7 @@
                            (delete-char 2)
                            ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg (point)))
+                                 (buffer-substring beg end))
                            ;;
                            )
                           ((looking-at-p "[かけ]")
@@ -86,7 +86,7 @@
                            (delete-char 2)
                            ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg (point)))
+                                 (buffer-substring beg end))
                            ;;
                            )))
                    (t nil))
