@@ -36,7 +36,12 @@
 (defun quail-yoko50-update-translation (control-flag)
   ;; (message "<%S><%S><%S>" control-flag quail-current-key quail-current-str)
   (cond ((null control-flag)
-         (setq quail-current-str (or quail-current-str quail-current-key)))
+         ;; (setq quail-current-str (or quail-current-str quail-current-key)))
+         (setq quail-current-str
+               (if (/= (aref quail-current-key 0) ?\;)
+                   (or quail-current-str quail-current-key)
+                 "")))
+        ;;
         ((integerp control-flag)
          (setq unread-command-events
                (append (substring quail-current-key control-flag)
@@ -45,9 +50,11 @@
          (save-excursion
            ;; (setq quail-translating nil) ; XXX: ???
            (let* ((beg (overlay-start quail-conv-overlay))
-                  (end (overlay-end quail-conv-overlay))
+                  ;; (end (overlay-end quail-conv-overlay))
+                  (end (point))
                   char)
-             (cond ((and (< beg end) (string= "m" quail-current-key))
+             (cond ((and (number-or-marker-p beg) (number-or-marker-p end)
+                         (< beg end) (string= "m" quail-current-key))
                     (goto-char (1- end))
                     (setq char (char-after))
                     (cond ((looking-at-p
@@ -60,7 +67,8 @@
                                  (buffer-substring beg (point)))
                            ;;
                            )))
-                   ((and (< (1+ beg) end) (string= "km" quail-current-key))
+                   ((and (number-or-marker-p beg) (number-or-marker-p end)
+                         (< (1+ beg) end) (string= "km" quail-current-key))
                     (goto-char (- end 2))
                     (setq char (char-after))
                     (cond ((looking-at-p "[はひふへほ]")
@@ -90,17 +98,17 @@
   (interactive)
   (setq quail-translating nil)
   (let ((start (overlay-start quail-conv-overlay))
-	(end (overlay-end quail-conv-overlay)))
+        (end (overlay-end quail-conv-overlay)))
     (save-excursion
       (goto-char start)
       (if ;; (re-search-forward "\\cH" end t)
           (looking-at "\\cH")
           ;;
-	  (japanese-katakana-region start end)
-	(japanese-hiragana-region start end)))
+          (japanese-katakana-region start end)
+        (japanese-hiragana-region start end)))
     (setq quail-conversion-str
-	  (buffer-substring (overlay-start quail-conv-overlay)
-			    (overlay-end quail-conv-overlay)))
+          (buffer-substring (overlay-start quail-conv-overlay)
+                            (overlay-end quail-conv-overlay)))
     ;; XXX
     (setq quail-current-key nil)
     (setq quail-current-str nil)
@@ -116,16 +124,16 @@
   ;;   (insert ?ん)
   ;;   (delete-char 1))
   (let* ((from (copy-marker (overlay-start quail-conv-overlay)))
-	 (len (- (overlay-end quail-conv-overlay) from)))
+         (len (- (overlay-end quail-conv-overlay) from)))
     (quail-delete-overlays)
     (setq quail-current-str nil)
     (unwind-protect
-	(let ((result (kkc-region from (+ from len))))
-	  (move-overlay quail-conv-overlay from (point))
-	  (setq quail-conversion-str (buffer-substring from (point)))
-	  (if (= (+ from result) (point))
-	      (setq quail-converting nil))
-	  (setq quail-translating nil))
+        (let ((result (kkc-region from (+ from len))))
+          (move-overlay quail-conv-overlay from (point))
+          (setq quail-conversion-str (buffer-substring from (point)))
+          (if (= (+ from result) (point))
+              (setq quail-converting nil))
+          (setq quail-translating nil))
       (set-marker from nil))))
 
 (defun quail-yoko50-no-conversion ()
@@ -133,6 +141,31 @@
   (interactive)
   (setq quail-translating nil)
   (setq quail-converting nil))
+
+(defvar quail-yoko50-switch-table
+  '((?\; . ("yoko50-ascii"))
+    (?j . "yoko50")
+    (?z . "yoko50-zenkaku")))
+
+(defvar-local quail-yoko50-package-saved nil)
+(put 'quail-yoko50-package-saved 'permanent-local t)
+
+(defun quail-yoko50-switch-package (key idx)
+  (quail-delete-region)
+  (setq quail-current-str nil
+        quail-converting nil
+        quail-conversion-str "")
+  (let ((pkg (cdr (assq (aref key (1- idx)) quail-yoko50-switch-table))))
+    (if (null pkg)
+        (quail-error "No package to be switched")
+      (if (stringp pkg)
+          (activate-input-method pkg)
+        (if (string= (car pkg) current-input-method)
+            (if quail-yoko50-package-saved
+                (activate-input-method quail-yoko50-package-saved))
+          (setq quail-yoko50-package-saved current-input-method)
+          (activate-input-method (car pkg))))))
+  (throw 'quail-tag nil))
 
 (defvar quail-yoko50-transliteration-rules
   '(( "y" "あ") ( "i" "い") ( "u" "う") ( "p" "え") ( "o" "お")
@@ -188,14 +221,29 @@
     ("/m" "　") ("//m" "〓")
     ("/," "‥") ("//," "【")
     ("/." "…") ("//." "】")
+
+    (";;" quail-yoko50-switch-package)
+    (";j" quail-yoko50-switch-package)
+    (";z" quail-yoko50-switch-package)
     ))
 
 (quail-define-package
  "yoko50"                               ; name
  "Japanese"                             ; language
- "yoko50"                               ; title
+ "横"                                   ; title
  nil                                    ; guidance
- "yoko50"                               ; docstring
+                                        ; docstring
+ "Japanese input method by Yoko50 layout and Kana-Kanji conversion.
+
+Special key bindings
+--------------------
+K	Change Hiragana to Katakana or Katakana to Hiragana.
+;;	Toggle between this input method and the input method `yoko50-ascii'.
+;z	Shift to the input method `yoko50-zenkaku'.
+	Typing \";j\" will put you back to this input method.
+RET	Accept the current character sequence.
+SPC	Proceed to the next stage, Kana-Kanji conversion.
+"
  nil                                    ; translation-keys
  t                                      ; forget-last-selection
  t                                      ; deterministic
@@ -204,22 +252,74 @@
  nil                                    ; create-decode-map
  nil                                    ; maximum-shortest
  nil                                    ; overlay-plist
- ;; nil                                    ; update-translation-function
  #'quail-yoko50-update-translation      ; update-translation-function
- ;; conversion-keys
+                                        ; conversion-keys
  '(("K" . quail-yoko50-toggle-kana)
-   ;; ("\C-k" . quail-yoko50-toggle-kana)
    (" " . quail-yoko50-kanji-kkc)
-   ;; ("\C-m" . quail-no-conversion)
-   ("\C-m" . quail-yoko50-no-conversion)
-   ;; ([return] . quail-no-conversion)
-   ;; ("\C-j" . quail-no-conversion)
-   )
+   ("\C-m" . quail-no-conversion)
+   ([return] . quail-no-conversion))
  t                                      ; simple
  )
 
 (dolist (elt quail-yoko50-transliteration-rules)
   (quail-defrule (car elt) (nth 1 elt)))
+
+(quail-define-package
+ "yoko50-ascii" "Japanese" "Aa"
+ nil
+ "Temporary ASCII input mode used within the input method `yoko50'.
+Type \";;\" to go back to previous input method."
+ nil t t)
+
+(quail-define-rules
+ (";;" quail-yoko50-switch-package)
+ (";j" quail-yoko50-switch-package)
+ (";z" quail-yoko50-switch-package))
+
+(quail-define-package
+ "yoko50-zenkaku" "Japanese" "Ａ"
+ nil
+ "Japanese zenkaku alpha numeric character input method.
+
+Special key bindings
+--------------------
+;;	toggle between this input method and the input method `yoko50-ascii'.
+;j	shift to the input method `yoko50',
+	typing \";z\" puts you back to this input method.
+"
+ nil t t)
+
+(quail-define-rules
+
+ (" " "　") ("!" "！") ("\"" "″") ("#" "＃")
+ ("$" "＄") ("%" "％") ("&" "＆") ("'" "′")
+ ("(" "（") (")" "）") ("*" "＊") ("+" "＋")
+ ("," "，") ("-" "−") ("." "．") ("/" "／")
+ ("0" "０") ("1" "１") ("2" "２") ("3" "３")
+ ("4" "４") ("5" "５") ("6" "６") ("7" "７")
+ ("8" "８") ("9" "９") (":" "：") (";" "；")
+ ("<" "＜") ("=" "＝") (">" "＞") ("?" "？")
+ ("@" "＠") ("A" "Ａ") ("B" "Ｂ") ("C" "Ｃ")
+ ("D" "Ｄ") ("E" "Ｅ") ("F" "Ｆ") ("G" "Ｇ")
+ ("H" "Ｈ") ("I" "Ｉ") ("J" "Ｊ") ("K" "Ｋ")
+ ("L" "Ｌ") ("M" "Ｍ") ("N" "Ｎ") ("O" "Ｏ")
+ ("P" "Ｐ") ("Q" "Ｑ") ("R" "Ｒ") ("S" "Ｓ")
+ ("T" "Ｔ") ("U" "Ｕ") ("V" "Ｖ") ("W" "Ｗ")
+ ("X" "Ｘ") ("Y" "Ｙ") ("Z" "Ｚ") ("[" "［")
+ ("\\" "￥") ("]" "］") ("^" "＾") ("_" "＿")
+ ("`" "‘") ("a" "ａ") ("b" "ｂ") ("c" "ｃ")
+ ("d" "ｄ") ("e" "ｅ") ("f" "ｆ") ("g" "ｇ")
+ ("h" "ｈ") ("i" "ｉ") ("j" "ｊ") ("k" "ｋ")
+ ("l" "ｌ") ("m" "ｍ") ("n" "ｎ") ("o" "ｏ")
+ ("p" "ｐ") ("q" "ｑ") ("r" "ｒ") ("s" "ｓ")
+ ("t" "ｔ") ("u" "ｕ") ("v" "ｖ") ("w" "ｗ")
+ ("x" "ｘ") ("y" "ｙ") ("z" "ｚ") ("{" "｛")
+ ("|" "｜") ("}" "｝") ("~" "〜")
+
+ (";;" quail-yoko50-switch-package)
+ (";j" quail-yoko50-switch-package)
+ (";z" quail-yoko50-switch-package)
+ )
 
 ;;; provide
 
