@@ -147,11 +147,9 @@ If cons of strings, use its car and cdr."
     ("xtu" "っ") ("xya" "ゃ") ("xyu" "ゅ") ("xyo" "ょ") ("xwa" "ゎ")
     ("xka" "ヵ") ("xke" "ヶ")
 
-    ;; XXX: 個人的に数字・記号は半角が好み
     ;; ("1" "１") ("2" "２") ("3" "３") ("4" "４") ("5" "５")
     ;; ("6" "６") ("7" "７") ("8" "８") ("9" "９") ("0" "０")
 
-    ;; XXX: 個人的に数字・記号は半角が好み
     ;; ("!" "！") ("@" "＠") ("#" "＃") ("$" "＄") ("%" "％")
     ;; ("^" "＾") ("&" "＆") ("*" "＊") ("(" "（") (")" "）")
     ;; ("-" "ー") ("=" "＝") ("`" "｀") ("\\" "￥") ("|" "｜")
@@ -160,7 +158,6 @@ If cons of strings, use its car and cdr."
     ;; ("'" "’") ("." "。") ("," "、") ("<" "＜") (">" "＞")
     ;; ("?" "？") ("/" "／")
 
-    ;; "ー「」。、" は必要
     ("-" "ー") ("[" "「") ("]" "」") ("." "。") ("," "、")
 
     ("z1" "○") ("z!" "●")
@@ -197,11 +194,7 @@ If cons of strings, use its car and cdr."
     ("z;" "゛") ("z:" "゜")
     ("z'" "‘") ("z\"" "“")
 
-    ;; "-" が "ー" になってしまって具合が悪い
-    ;; ("zx" [":-"]) ("zX" [":-)"])
-    ;; XXX: 全角引用符の救済策
     ("zx" "’") ("zX"  "”")
-
     ("zc" "〇") ("zC" "℃")
     ("zv" "※") ("zV" "÷")
     ("zb" "°") ("zB" "←")
@@ -210,13 +203,6 @@ If cons of strings, use its car and cdr."
     ("z," "‥") ("z<" "≦")
     ("z." "…") ("z>" "≧")
     ("z/" "・") ("z?" "∞")
-
-    ;; ("\\\\" quail-japanese-self-insert-and-switch-to-alpha)
-    ;; ("{{" quail-japanese-self-insert-and-switch-to-alpha)
-    ;; ("}}" quail-japanese-self-insert-and-switch-to-alpha)
-
-    ;; ("qq" quail-japanese-switch-package)
-    ;; ("qz" quail-japanese-switch-package)
     ))
 
 (defun muji-make-roman-pattern (rules)

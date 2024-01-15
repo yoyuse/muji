@@ -2,11 +2,12 @@
 
 ## これは何?
 
-leim/quail/japanese.el や muji.el では `zh` `zj` `zk` `zl` で `←` `↓` `↑` `→` となるなど、 `z`*key* による記号入力が可能ですが、
+leim/quail/japanese.el や muji.el のローマ字かな変換では `zh` `zj` `zk` `zl` で `←` `↓` `↑` `→` と変換されるなど、 `z`*key* による記号入力が可能ですが、
 これを [横五十音配列 (横50音配列)](http://jgrammar.life.coocan.jp/ja/tools/imekeys.htm#Yoko50) 用にアレンジしたものです。
 
 具体的には、
-Shift キーを使わずに 10 列 3 段の 30 キーに収まるよう取捨選択・再配置し、
+Shift キーを使わずに 10 列 3 段の 30 キーに収まるよう、
+記号を取捨選択・再配置して
 `/`*key* または `//`*key* で入力できるようにしています。
 
 ## 割り当て
