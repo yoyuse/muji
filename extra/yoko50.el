@@ -143,7 +143,7 @@
   (setq quail-converting nil))
 
 (defvar quail-yoko50-switch-table
-  '((?\; . ("yoko50-ascii"))
+  '((?q . ("yoko50-ascii"))
     (?a . "yoko50-ascii")
     (?j . "yoko50")
     (?z . "yoko50-zenkaku")))
@@ -228,7 +228,7 @@
     ("/," "‥") ("//," "【")
     ("/." "…") ("//." "】")
 
-    (";;" quail-yoko50-switch-package)
+    (";q" quail-yoko50-switch-package)
     (";a" quail-yoko50-switch-package)
     (";j" quail-yoko50-switch-package)
     (";z" quail-yoko50-switch-package)
@@ -245,10 +245,10 @@
 Special key bindings
 --------------------
 K	Change Hiragana to Katakana or Katakana to Hiragana.
-;;	Toggle between this input method and the input method `yoko50-ascii'.
+;q	Toggle between this input method and the input method `yoko50-ascii'.
 ;a	Shift to the input method `yoko50-ascii'.
+;j	Shift to the input method `yoko50'.
 ;z	Shift to the input method `yoko50-zenkaku'.
-	Typing \";j\" will put you back to this input method.
 RET	Accept the current character sequence.
 SPC	Proceed to the next stage, Kana-Kanji conversion.
 "
@@ -276,11 +276,18 @@ SPC	Proceed to the next stage, Kana-Kanji conversion.
  "yoko50-ascii" "Japanese" "Aa"
  nil
  "Temporary ASCII input mode used within the input method `yoko50'.
-Type \";;\" to go back to previous input method."
+
+Special key bindings
+--------------------
+;q	Go back to previous input method.
+;a	Shift to the input method `yoko50-ascii'.
+;j	Shift to the input method `yoko50'.
+;z	Shift to the input method `yoko50-zenkaku'.
+"
  nil t t)
 
 (quail-define-rules
- (";;" quail-yoko50-switch-package)
+ (";q" quail-yoko50-switch-package)
  (";a" quail-yoko50-switch-package)
  (";j" quail-yoko50-switch-package)
  (";z" quail-yoko50-switch-package))
@@ -292,10 +299,10 @@ Type \";;\" to go back to previous input method."
 
 Special key bindings
 --------------------
-;;	Toggle between this input method and the input method `yoko50-ascii'.
+;q	Toggle between this input method and the input method `yoko50-ascii'.
 ;a	Shift to the input method `yoko50-ascii'.
-;j	Shift to the input method `yoko50',
-	Typing \";z\" will put you back to this input method.
+;j	Shift to the input method `yoko50'.
+;z	Shift to the input method `yoko50-zenkaku'.
 "
  nil t t)
 
@@ -326,7 +333,7 @@ Special key bindings
  ("x" "ｘ") ("y" "ｙ") ("z" "ｚ") ("{" "｛")
  ("|" "｜") ("}" "｝") ("~" "〜")
 
- (";;" quail-yoko50-switch-package)
+ (";q" quail-yoko50-switch-package)
  (";a" quail-yoko50-switch-package)
  (";j" quail-yoko50-switch-package)
  (";z" quail-yoko50-switch-package)
