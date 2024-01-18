@@ -124,10 +124,10 @@
 (defvar muji-yoko50-roman-pattern
   (muji-make-roman-pattern muji-yoko50-transliteration-rules))
 
-(defcustom muji-yoko50-active-cursor-color "coral"
-  "Cursor color when muji mode is active."
-  :type 'color
-  :group 'muji-yoko50)
+;; (defcustom muji-yoko50-active-cursor-color nil
+;;   "Cursor color when muji mode is active."
+;;   :type '(choice color (const nil))
+;;   :group 'muji-yoko50)
 
 (defun muji-delimiter () muji-yoko50-delimiter)
 (defun muji-stop-chars () muji-yoko50-stop-chars)
@@ -137,7 +137,7 @@
 (defun muji-transliteration-rules () muji-yoko50-transliteration-rules)
 (defun muji-roman-pattern () muji-yoko50-roman-pattern)
 (defun muji-preprocess (string) string)
-(defun muji-active-cursor-color () muji-yoko50-active-cursor-color)
+;; (defun muji-active-cursor-color () muji-yoko50-active-cursor-color)
 
 ;;; provide
 

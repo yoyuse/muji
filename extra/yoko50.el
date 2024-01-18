@@ -142,6 +142,9 @@
   (setq quail-translating nil)
   (setq quail-converting nil))
 
+(defvar quail-yoko50-switch-package-hook nil
+  "Hook run by `quail-yoko50-switch-package'.")
+
 (defvar quail-yoko50-switch-table
   '((?q . ("yoko50-ascii"))
     (?a . "yoko50-ascii")
@@ -171,6 +174,7 @@
                 (activate-input-method quail-yoko50-package-saved))
           (setq quail-yoko50-package-saved current-input-method)
           (activate-input-method (car pkg))))))
+  (run-hooks 'quail-yoko50-switch-package-hook)
   (throw 'quail-tag nil))
 
 (defvar quail-yoko50-transliteration-rules

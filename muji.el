@@ -222,7 +222,7 @@ If cons of strings, use its car and cdr."
 (defun muji-katakana-nfer () muji-katakana-nfer)
 (defun muji-transliteration-rules () muji-transliteration-rules)
 (defun muji-roman-pattern () muji-roman-pattern)
-(defun muji-active-cursor-color () muji-active-cursor-color)
+;; (defun muji-active-cursor-color () muji-active-cursor-color)
 
 ;; Emacs 27 does not have `string-replace'
 (defun muji-string-replace (from-string to-string in-string)
@@ -423,22 +423,22 @@ in which case if ARG is non-nil, inverse `muji-remove-space'."
 
 ;;; cursor color
 
-(defcustom muji-inactive-cursor-color
-  (cdr (assq 'cursor-color (frame-parameters (selected-frame))))
-  "Cursor color when muji mode is inactive."
-  :type 'color :group 'muji)
+;; (defcustom muji-inactive-cursor-color
+;;   (cdr (assq 'cursor-color (frame-parameters (selected-frame))))
+;;   "Cursor color when muji mode is inactive."
+;;   :type 'color :group 'muji)
 
-(defcustom muji-active-cursor-color "SpringGreen3"
-  "Cursor color when muji mode is active."
-  :type 'color :group 'muji)
+;; (defcustom muji-active-cursor-color nil
+;;   "Cursor color when muji mode is active."
+;;   :type '(choice color (const nil)) :group 'muji)
 
-(defun muji-set-cursor-color ()
-  "Set cursor color according to `muji-mode'."
-  (when (muji-active-cursor-color)
-    (set-cursor-color
-     (if muji-mode (muji-active-cursor-color) muji-inactive-cursor-color))))
+;; (defun muji-set-cursor-color ()
+;;   "Set cursor color according to `muji-mode'."
+;;   (when (muji-active-cursor-color)
+;;     (set-cursor-color
+;;      (if muji-mode (muji-active-cursor-color) muji-inactive-cursor-color))))
 
-(add-hook 'post-command-hook 'muji-set-cursor-color)
+;; (add-hook 'post-command-hook 'muji-set-cursor-color)
 
 ;;; minibuffer
 
