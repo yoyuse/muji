@@ -86,6 +86,11 @@ If cons of strings, use its car and cdr."
   :type '(choice boolean (cons string string))
   :group 'muji)
 
+(defcustom muji-auto-nfer t
+  "If non-nil, commit phrase including no hiragana immediately."
+  :type 'boolean
+  :group 'muji)
+
 ;; cf. quail-japanese-use-double-n
 (defcustom muji-use-double-n nil
   "If non-nil, use type \"nn\" to insert ん."
@@ -380,6 +385,10 @@ If INVERSE-REMOVE-SPACE is non-nil, inverse `muji-remove-space'."
           (let* ((nfer (car part))
                  (phrase (cdr part)))
             (cond (nfer (forward-char (length phrase)))
+                  ;; auto-nfer
+                  ((and muji-auto-nfer (not (string-match-p "\\cH" phrase)))
+                   (forward-char (length phrase)))
+                  ;; /auto-nfer
                   (t (kkc-region (point) (+ (point) (length phrase)))))))
         (when muji-remove-space
           (undo-boundary)
