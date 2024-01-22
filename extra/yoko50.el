@@ -77,7 +77,7 @@
                            (delete-char 2)
                            ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg end))
+                                 (buffer-substring beg (1- end)))
                            ;;
                            )
                           ((looking-at-p "[かけ]")
@@ -86,7 +86,7 @@
                            (delete-char 2)
                            ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg end))
+                                 (buffer-substring beg (1- end)))
                            ;;
                            )))
                    (t nil))
