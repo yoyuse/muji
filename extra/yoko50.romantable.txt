@@ -90,11 +90,8 @@ n	ん
 m	゛
 km	゜
 うm	ヴ
-df	ヶ
-dg	ヵ
 d/	・
 dm	ー
-kl	ぜ
 k/q	○
 k//q	●
 k/w	▽
