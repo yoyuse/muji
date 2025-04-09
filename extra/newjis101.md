@@ -25,7 +25,8 @@ newjis101.el を `load-path` の通ったところに置いて init.el に次の
 ;; (define-key kkc-keymap (kbd "l") nil)
 ;; (define-key kkc-keymap (kbd "L") nil)
 ;;
-;; (define-key kkc-keymap (kbd "C-u") 'kkc-hiragana)
+;; (define-key kkc-keymap (kbd "C-u") 'kkc-newjis101-ascii)
+;; (define-key kkc-keymap (kbd "C-j") 'kkc-newjis101-hiragana)
 ;; (define-key kkc-keymap (kbd "C-k") 'kkc-katakana)
 ;; (define-key kkc-keymap (kbd "C-l") 'kkc-longer-phrase)
 ;; (define-key kkc-keymap (kbd "C-y") 'kkc-shorter-conversion)

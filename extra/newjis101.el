@@ -35,7 +35,8 @@
 ;; (define-key kkc-keymap (kbd "l") nil)
 ;; (define-key kkc-keymap (kbd "L") nil)
 ;;
-;; (define-key kkc-keymap (kbd "C-u") 'kkc-hiragana)
+;; (define-key kkc-keymap (kbd "C-u") 'kkc-newjis101-ascii)
+;; (define-key kkc-keymap (kbd "C-j") 'kkc-newjis101-hiragana)
 ;; (define-key kkc-keymap (kbd "C-k") 'kkc-katakana)
 ;; (define-key kkc-keymap (kbd "C-l") 'kkc-longer-phrase)
 ;; (define-key kkc-keymap (kbd "C-y") 'kkc-shorter-conversion)
@@ -47,16 +48,9 @@
 (require 'quail)
 (require 'kkc)
 
-;; XXX
 (defun quail-newjis101-update-translation (control-flag)
-  ;; (message "<%S><%S><%S>" control-flag quail-current-key quail-current-str)
   (cond ((null control-flag)
-         ;; (setq quail-current-str (or quail-current-str quail-current-key)))
-         (setq quail-current-str
-               (if (/= (aref quail-current-key 0) ?\;)
-                   (or quail-current-str quail-current-key)
-                 "")))
-        ;;
+         (setq quail-current-str (or quail-current-str quail-current-key)))
         ((integerp control-flag)
          (setq unread-command-events
                (append (substring quail-current-key control-flag)
@@ -77,11 +71,8 @@
                            (setq quail-current-str "")
                            (insert (if (= ?う char) ?ヴ (1+ char))) ; 濁音化
                            (delete-char 1)
-                           ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg end))
-                           ;;
-                           )))
+                                 (buffer-substring beg end)))))
                    ((and (number-or-marker-p beg) (number-or-marker-p end)
                          (< beg point) (string= "W" quail-current-key))
                     (goto-char (1- point))
@@ -90,33 +81,23 @@
                            (setq quail-current-str "")
                            (insert (+ 2 char)) ; 半濁音化
                            (delete-char 1)
-                           ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg end))
-                           ;;
-                           )
+                                 (buffer-substring beg end)))
                           ((looking-at-p "[わいえ]")
                            (setq quail-current-str "")
                            (insert (cond ((= ?わ char) ?ゎ)
                                          ((= ?い char) ?ゐ)
                                          ((= ?え char) ?ゑ)))
                            (delete-char 1)
-                           ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg end))
-                           ;;
-                           )
+                                 (buffer-substring beg end)))
                           ((looking-at-p "[かけ]")
                            (setq quail-current-str "")
                            (insert (if (= ?か char) ?ヵ ?ヶ))
                            (delete-char 1)
-                           ;;
                            (setq quail-conversion-str
-                                 (buffer-substring beg end))
-                           ;;
-                           )))
-                   (t nil))
-             )))
+                                 (buffer-substring beg end)))))
+                   (t nil)))))
         (t nil))
   control-flag)
 
@@ -124,42 +105,31 @@
   (interactive)
   (setq quail-translating nil)
   (let ((start (overlay-start quail-conv-overlay))
-	(end (overlay-end quail-conv-overlay)))
+        (end (overlay-end quail-conv-overlay)))
     (save-excursion
       (goto-char start)
-      (if ;; (re-search-forward "\\cH" end t)
-          (looking-at "\\cH")
-          ;;
-	  (japanese-katakana-region start end)
-	(japanese-hiragana-region start end)))
+      (if (looking-at "\\cH")
+          (japanese-katakana-region start end)
+        (japanese-hiragana-region start end)))
     (setq quail-conversion-str
-	  (buffer-substring (overlay-start quail-conv-overlay)
-			    (overlay-end quail-conv-overlay)))
-    ;; XXX
+          (buffer-substring (overlay-start quail-conv-overlay)
+                            (overlay-end quail-conv-overlay)))
     (setq quail-current-key nil)
-    (setq quail-current-str nil)
-    ;;
-    ))
+    (setq quail-current-str nil)))
 
 (defun quail-newjis101-kanji-kkc ()
   (interactive)
-  ;; (when (= (char-before (overlay-end quail-conv-overlay)) ?n)
-  ;;   ;; The last char is `n'.  We had better convert it to `ん'
-  ;;   ;; before kana-kanji conversion.
-  ;;   (goto-char (1- (overlay-end quail-conv-overlay)))
-  ;;   (insert ?ん)
-  ;;   (delete-char 1))
   (let* ((from (copy-marker (overlay-start quail-conv-overlay)))
-	 (len (- (overlay-end quail-conv-overlay) from)))
+         (len (- (overlay-end quail-conv-overlay) from)))
     (quail-delete-overlays)
     (setq quail-current-str nil)
     (unwind-protect
-	(let ((result (kkc-region from (+ from len))))
-	  (move-overlay quail-conv-overlay from (point))
-	  (setq quail-conversion-str (buffer-substring from (point)))
-	  (if (= (+ from result) (point))
-	      (setq quail-converting nil))
-	  (setq quail-translating nil))
+        (let ((result (kkc-region from (+ from len))))
+          (move-overlay quail-conv-overlay from (point))
+          (setq quail-conversion-str (buffer-substring from (point)))
+          (if (= (+ from result) (point))
+              (setq quail-converting nil))
+          (setq quail-translating nil))
       (set-marker from nil))))
 
 (defun quail-newjis101-no-conversion ()
@@ -225,11 +195,7 @@
     ("$;" "゛") ("$:" "゜")
     ("$'" "‘") ("$\"" "“")
 
-    ;; "-" が "ー" になってしまって具合が悪い
-    ;; ("$x" [":-"]) ("$X" [":-)"])
-    ;; XXX: 全角引用符の救済策
-    ("$x" "’") ("$X"  "”")
-
+    ("$x" "’") ("$X"  "”")            ; 全角引用符
     ("$c" "〇") ("$C" "℃")
     ("$v" "※") ("$V" "÷")
     ("$b" "°") ("$B" "←")
@@ -243,7 +209,7 @@
 (quail-define-package
  "newjis101"
  "Japanese"
- "新" ; "新JISかな"
+ "新JIS"
  nil
  "new JIS kana input on 101 keyboard.
 
@@ -260,18 +226,90 @@
  nil
  nil
  #'quail-newjis101-update-translation
- '(;; ("K" . quail-newjis101-toggle-kana)
-   ;; ("\C-m" . quail-no-conversion)
-   ;; ([return] . quail-no-conversion)
+ '(("\C-j" . quail-newjis101-toggle-kana)
    ("\C-k" . quail-newjis101-toggle-kana)
+   ("\C-u" . quail-newjis101-ascii)
    (" " . quail-newjis101-kanji-kkc)
    ("\C-m" . quail-newjis101-no-conversion)
    ([return] . quail-newjis101-no-conversion))
- t
- )
+ t)
 
 (dolist (elt quail-newjis101-transliteration-rules)
   (quail-defrule (car elt) (nth 1 elt)))
+
+;;; ascii conversion
+
+(defvar newjis101-ascii-newjis101-transliteration-rules
+  (append quail-newjis101-transliteration-rules
+          '(("sl" "が") (";l" "ぎ") ("hl" "ぐ") ("wl" "げ") ("xl" "ご")
+            ("vl" "ざ") ("dl" "じ") ("zl" "ず") ("el" "ぜ") ("ql" "ぞ")
+            ("gl" "だ") ("[l" "ぢ") ("yl" "づ") ("rl" "で") ("fl" "ど")
+            ("al" "ば") ("Yl" "び") ("Rl" "ぶ") ("Sl" "べ") ("El" "ぼ")
+            ("aW" "ぱ") ("YW" "ぴ") ("RW" "ぷ") ("SW" "ぺ") ("EW" "ぽ")
+            ("LW" "ゎ") ("kW" "ゐ")             ("UW" "ゑ")
+            ("jl" "ヴ") ("sW" "ヵ") ("wW" "ヶ"))))
+
+(defun newjis101-ascii (&optional current-key length-head)
+  (interactive)
+  (let* ((kkc-current-key (if current-key current-key kkc-current-key))
+         (kkc-length-head (if length-head length-head kkc-length-head)))
+    (mapconcat
+     #'(lambda (c)
+         (or (car (cl-rassoc (list (char-to-string c))
+                             newjis101-ascii-newjis101-transliteration-rules
+                             :test #'equal))
+             (char-to-string c)))
+     (string-to-list
+      (substring (mapconcat #'(lambda (c) (char-to-string c))
+                            kkc-current-key "")
+                 0 kkc-length-head))
+     "")))
+
+(defun quail-newjis101-ascii ()
+  (interactive)
+  (setq quail-translating nil)
+  (let* ((start (overlay-start quail-conv-overlay))
+         (end (overlay-end quail-conv-overlay))
+         (str (buffer-substring-no-properties start end))
+         (current-key (string-to-list str))
+         (length-head (length current-key)))
+    (save-excursion
+      (goto-char start)
+      (japanese-replace-region start end
+                               (newjis101-ascii current-key length-head))
+    (setq quail-conversion-str
+          (buffer-substring (overlay-start quail-conv-overlay)
+                            (overlay-end quail-conv-overlay)))
+    (setq quail-current-key nil)
+    (setq quail-current-str nil))))
+
+(defun kkc-newjis101-ascii ()
+  "Convert to ASCII."
+  (interactive)
+  (newjis101-ascii-kkc-update-conversion))
+
+(defun kkc-toggle-kana ()
+  "Convert to Katakana/Hiragana."
+  (interactive)
+  (setcar kkc-current-conversions
+          (if (/= -1 (car kkc-current-conversions)) -1 0))
+  (kkc-update-conversion 'all))
+
+(defun kkc-newjis101-hiragana ()
+  "Convert to hiragana."
+  (interactive)
+  (setcar kkc-current-conversions 0)
+  (kkc-update-conversion 'all))
+
+(defun newjis101-ascii-kkc-update-conversion (&optional all)
+  (goto-char (overlay-start kkc-overlay-head))
+  (insert (newjis101-ascii))
+  (delete-region (point) (overlay-end kkc-overlay-head))
+  (unwind-protect
+      (run-hook-with-args 'kkc-after-update-conversion-functions
+                          (overlay-start kkc-overlay-head)
+                          (overlay-end kkc-overlay-head))
+    (goto-char (overlay-end kkc-overlay-tail))))
 
 ;;; provide
 
