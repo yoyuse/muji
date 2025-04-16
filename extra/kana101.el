@@ -117,6 +117,34 @@
     (setq quail-current-key nil)
     (setq quail-current-str nil)))
 
+(defun quail-kana101-hiragana ()
+  (interactive)
+  (setq quail-translating nil)
+  (let ((start (overlay-start quail-conv-overlay))
+        (end (overlay-end quail-conv-overlay)))
+    (save-excursion
+      (goto-char start)
+      (japanese-hiragana-region start end))
+    (setq quail-conversion-str
+          (buffer-substring (overlay-start quail-conv-overlay)
+                            (overlay-end quail-conv-overlay)))
+    (setq quail-current-key nil)
+    (setq quail-current-str nil)))
+
+(defun quail-kana101-katakana ()
+  (interactive)
+  (setq quail-translating nil)
+  (let ((start (overlay-start quail-conv-overlay))
+        (end (overlay-end quail-conv-overlay)))
+    (save-excursion
+      (goto-char start)
+      (japanese-katakana-region start end))
+    (setq quail-conversion-str
+          (buffer-substring (overlay-start quail-conv-overlay)
+                            (overlay-end quail-conv-overlay)))
+    (setq quail-current-key nil)
+    (setq quail-current-str nil)))
+
 (defun quail-kana101-kanji-kkc ()
   (interactive)
   (let* ((from (copy-marker (overlay-start quail-conv-overlay)))
@@ -180,6 +208,7 @@
     ("~w" "》") ("~W" "〉")
     ("~r" "々") ("~R" "仝")
     ("~t" "〆") ("~T" "§")
+                ("~Y" "￥")             ; 円記号
     ("~p" "〒") ("~P" "↑")
     ("~[" "『") ("~{" "〔")
     ("~]" "』") ("~}" "〕")
@@ -212,10 +241,15 @@
  nil
  "JIS-kana on 101 keyboard.
 
-ぬふあうえ おやゆよわほへむろ    ！＠ぁぅぇ ぉゃゅょをー＋｜〜
- たていすか んなにらせ゛゜        ＱＷぃＲＴ ＹＵＩＯＰ「」
-  ちとしはき くまのりれけ          ＡＳＤＦＧ ＨＪＫＬ：″
-   つさそひこ みもねるめ            っＸＣＶＢ ＮＭ、。・
+ぬふあうえ おやゆよわほへむろ    ! @ ぁぅぇ ぉゃゅょをｰ + | ~
+たていすか んなにらせ゛゜        Q W ぃR T  Y U I O P 「」
+ちとしはき くまのりれけ          A S D F G  H J K L : \"
+つさそひこ みもねるめ            っX C V B  N M 、。・
+
+○▽△□◇ ☆◎¢♂♀〜≠＼´    ●▼▲■◆ ★£×【】∴±‖¨
+《》  々〆         〒『』        〈〉  仝§ ￥      ↑〔〕
+  ヽゝ〃‐ ←↓↑→゛‘            ヾゞ→—         ゜“
+  ’〇※° ′″‥…・              ”℃÷← ↓〓≦≧∞
 "
  nil
  t
@@ -226,9 +260,8 @@
  nil
  nil
  #'quail-kana101-update-translation
- '(;; ("K" . quail-kana101-toggle-kana)
-   ("\C-j" . quail-kana101-toggle-kana)
-   ("\C-k" . quail-kana101-toggle-kana)
+ '(("\C-j" . quail-kana101-hiragana)
+   ("\C-k" . quail-kana101-katakana)
    ("\C-u" . quail-kana101-ascii)
    (" " . quail-kana101-kanji-kkc)
    ("\C-m" . quail-kana101-no-conversion)
@@ -311,6 +344,30 @@
                           (overlay-start kkc-overlay-head)
                           (overlay-end kkc-overlay-head))
     (goto-char (overlay-end kkc-overlay-tail))))
+
+;;; cursor color
+
+(defvar kana101-cursor-color-use-color t)
+
+(defvar kana101-cursor-color-default
+  (cdr (assq 'cursor-color (frame-parameters (selected-frame)))))
+
+(defun kana101-cursor-color ()
+  (cond
+   ((equal current-input-method "kana101") '("firebrick2" . "firebrick1"))
+   (t kana101-cursor-color-default)))
+
+(defun kana101-cursor-color-set-color ()
+  (when kana101-cursor-color-use-color
+    (let* ((light-dark (frame-parameter nil 'background-mode))
+           (light-mode (eq light-dark 'light))
+           (color (kana101-cursor-color))
+           (color (if (consp color)
+                      (if light-mode (car color) (cdr color))
+                    color)))
+      (set-cursor-color color))))
+
+(add-hook 'post-command-hook 'kana101-cursor-color-set-color)
 
 ;;; provide
 
