@@ -199,7 +199,7 @@ If cons of strings, use its car and cdr."
     ("z;" "゛") ("z:" "゜")
     ("z'" "‘") ("z\"" "“")
 
-    ("zx" "’") ("zX"  "”")
+    ("zx" "’") ("zX" "”")
     ("zc" "〇") ("zC" "℃")
     ("zv" "※") ("zV" "÷")
     ("zb" "°") ("zB" "←")

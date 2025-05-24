@@ -14,7 +14,7 @@ leim/quail/japanese.el (ローマ字入力) の代わりに JIS かな入力 で
 kana101.el を `load-path` の通ったところに置いて init.el に次のように書きます。
 
 ``` emacs-lisp
-(require 'kana101 nil t))
+(require 'kana101 nil t)
 ;; 好みに合わせて
 ;; (setq default-input-method "kana101")
 ;;
