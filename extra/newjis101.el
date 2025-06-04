@@ -288,11 +288,11 @@
   (interactive)
   (newjis101-ascii-kkc-update-conversion))
 
-(defun kkc-toggle-kana ()
+(defun kkc-newjis101-toggle-kana ()
   "Convert to Katakana/Hiragana."
   (interactive)
   (setcar kkc-current-conversions
-          (if (/= -1 (car kkc-current-conversions)) -1 0))
+          (if (/= 0 (car kkc-current-conversions)) 0 -1))
   (kkc-update-conversion 'all))
 
 (defun kkc-newjis101-hiragana ()

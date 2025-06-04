@@ -324,11 +324,11 @@
   (interactive)
   (kana101-ascii-kkc-update-conversion))
 
-(defun kkc-toggle-kana ()
+(defun kkc-kana101-toggle-kana ()
   "Convert to Katakana/Hiragana."
   (interactive)
   (setcar kkc-current-conversions
-          (if (/= -1 (car kkc-current-conversions)) -1 0))
+          (if (/= 0 (car kkc-current-conversions)) 0 -1))
   (kkc-update-conversion 'all))
 
 (defun kkc-kana101-hiragana ()
